@@ -1,4 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    show
+        AppBar,
+        BuildContext,
+        ButtonStyle,
+        Center,
+        Colors,
+        Column,
+        FontWeight,
+        MaterialApp,
+        MaterialPageRoute,
+        Navigator,
+        Scaffold,
+        State,
+        StatefulWidget,
+        StatelessWidget,
+        Text,
+        TextButton,
+        TextStyle,
+        ThemeData,
+        Widget,
+        WidgetStateProperty,
+        runApp;
 import 'package:noterra/pages/generate.dart';
 import 'package:noterra/pages/template.dart';
 
@@ -30,7 +52,7 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: .fromSeed(seedColor: Colors.blueAccent),
       ),
       home: const App(title: 'Noterra'),
     );
@@ -73,7 +95,7 @@ class _AppState extends State<App> {
         foregroundColor: Colors.white,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
