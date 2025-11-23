@@ -16,7 +16,7 @@ class _GeneratePageState extends State<GeneratePage> {
         foregroundColor: Colors.white,
         title: const Text('Generate Daily Report', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: Center(child: Text('Generate Report Page Content Here')),
+      body: const Center(child: Text('Generate Report Page Content Here')),
     );
   }
 }
