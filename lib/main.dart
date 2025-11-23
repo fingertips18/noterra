@@ -95,7 +95,7 @@ class _AppState extends State<App> {
         foregroundColor: Colors.white,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -119,14 +119,14 @@ class _AppState extends State<App> {
           children: [
             TextButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => TemplatePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatePage()));
               },
               style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.blueAccent), foregroundColor: WidgetStateProperty.all(Colors.white)),
               child: const Text('Add/Edit Template'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => GeneratePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const GeneratePage()));
               },
               style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.blueAccent), foregroundColor: WidgetStateProperty.all(Colors.white)),
               child: const Text('Generate Daily Report'),
