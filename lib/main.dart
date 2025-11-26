@@ -22,7 +22,7 @@ import 'package:flutter/material.dart'
         WidgetStateProperty,
         runApp;
 import 'package:noterra/pages/generate.dart';
-import 'package:noterra/pages/template.dart';
+import 'package:noterra/pages/template/templates.dart';
 
 void main() {
   runApp(const MyApp());
@@ -119,7 +119,7 @@ class _AppState extends State<App> {
           children: [
             TextButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatesPage()));
               },
               style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.blueAccent), foregroundColor: WidgetStateProperty.all(Colors.white)),
               child: const Text('Add/Edit Template'),
