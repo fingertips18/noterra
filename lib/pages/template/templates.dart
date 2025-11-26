@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:noterra/pages/template/add_template.dart';
+import 'package:noterra/pages/template/edit_template.dart';
 import 'package:noterra/pages/template/view_template.dart';
 
 class TemplatesPage extends StatefulWidget {
@@ -16,7 +17,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
-        title: const Text('Template Page', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Templates Page', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             onPressed: () {
@@ -55,7 +56,12 @@ class _TemplatesPageState extends State<TemplatesPage> {
                       leading: const Icon(Icons.insert_drive_file),
                       title: Text("Template ${index + 1}"),
                       subtitle: const Text("Last edited: 2025-11-26", style: TextStyle(color: Colors.black54)),
-                      trailing: const Icon(Icons.edit),
+                      trailing: IconButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTemplatePage()));
+                        },
+                        icon: const Icon(Icons.edit),
+                      ),
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewTemplate()));
                       },
