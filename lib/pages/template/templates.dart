@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:noterra/pages/template/add_template.dart';
+import 'package:noterra/pages/template/view_template.dart';
 
 class TemplatesPage extends StatefulWidget {
   const TemplatesPage({super.key});
@@ -56,8 +57,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                       subtitle: const Text("Last edited: 2025-11-26", style: TextStyle(color: Colors.black54)),
                       trailing: const Icon(Icons.edit),
                       onTap: () {
-                        // temporary action
-                        print("Tapped Template ${index + 1}");
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewTemplate()));
                       },
                     ),
                   );
