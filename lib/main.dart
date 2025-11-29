@@ -20,11 +20,22 @@ import 'package:flutter/material.dart'
         ThemeData,
         Widget,
         WidgetStateProperty,
+        WidgetsFlutterBinding,
         runApp;
-import 'package:noterra/pages/generate.dart';
-import 'package:noterra/pages/template/templates.dart';
+import 'package:noterra/constants/string.dart';
+import 'package:noterra/screens/generate.dart';
+import 'package:noterra/screens/template/templates.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialized Hive for Flutter
+  Hive.initFlutter();
+
+  // Open the Hive box to store items
+  await Hive.openBox(StringConstants.hiveBox);
+
   runApp(const MyApp());
 }
 

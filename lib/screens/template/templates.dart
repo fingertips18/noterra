@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:noterra/pages/template/add_template.dart';
-import 'package:noterra/pages/template/edit_template.dart';
-import 'package:noterra/pages/template/view_template.dart';
+import 'package:noterra/screens/template/add_template.dart';
+import 'package:noterra/screens/template/edit_template.dart';
+import 'package:noterra/screens/template/view_template.dart';
 
 class TemplatesPage extends StatefulWidget {
   const TemplatesPage({super.key});
