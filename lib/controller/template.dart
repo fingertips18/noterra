@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:noterra/constants/status.dart';
 import 'package:noterra/constants/string.dart';
 import 'package:noterra/model/template.dart';
+import 'package:noterra/widgets/toast.dart';
 
 class TemplateController {
   final BuildContext context;
@@ -28,7 +30,7 @@ class TemplateController {
       await hiveBox.add(template.toMap());
       _afterAction("saved");
     } catch (e) {
-      // TODO: add toast in a separate PR
+      toast(message: "Failed to create template", status: Status.error);
     }
   }
 
@@ -37,7 +39,7 @@ class TemplateController {
       await hiveBox.put(templateKey, template.toMap());
       _afterAction("edited");
     } catch (e) {
-      // TODO: add toast in a separate PR
+      toast(message: "Failed to edit template", status: Status.error);
     }
   }
 
@@ -46,7 +48,7 @@ class TemplateController {
       await hiveBox.delete(templateKey);
       _afterAction("deleted");
     } catch (e) {
-      // TODO: add toast in a separate PR
+      toast(message: "Failed to delete template", status: Status.error);
     }
   }
 
@@ -55,12 +57,12 @@ class TemplateController {
       await hiveBox.clear();
       _afterAction("cleared");
     } catch (e) {
-      // TODO: add toast in a separate PR
+      toast(message: "Failed to clear templates", status: Status.error);
     }
   }
 
   void _afterAction(String keyword) {
-    // TODO: add toast in a separate PR
+    toast(message: 'Template $keyword successfully', status: Status.success);
     fetchDataFunction(); // Refresh UI
     Navigator.of(context).pop(); // Close modals
   }
