@@ -34,7 +34,7 @@ Future<void> main() async {
   Hive.initFlutter();
 
   // Open the Hive box to store items
-  await Hive.openBox(StringConstants.hiveBox);
+  await Hive.openBox(StringConstants.templateBox);
 
   runApp(const MyApp());
 }
