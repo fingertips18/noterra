@@ -18,14 +18,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
         title: const Text('Templates Page', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTemplatePage()));
-            },
-            icon: const Icon(Icons.add_circle_outline),
-          ),
-        ],
+        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.clear_all))],
       ),
       body: Padding(
         padding: const EdgeInsetsGeometry.all(20),
@@ -72,6 +65,13 @@ class _TemplatesPageState extends State<TemplatesPage> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTemplatePage()));
+        },
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
     );
   }
