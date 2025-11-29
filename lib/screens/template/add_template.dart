@@ -8,6 +8,10 @@ class AddTemplatePage extends StatefulWidget {
 }
 
 class _AddTemplatePageState extends State<AddTemplatePage> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _bodyController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,43 +22,66 @@ class _AddTemplatePageState extends State<AddTemplatePage> {
       ),
       body: Padding(
         padding: const EdgeInsetsGeometry.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 10,
-          children: [
-            const TextField(
-              decoration: InputDecoration(
-                label: Text("Title"),
-                hintText: "Enter a concise title for your report",
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const Expanded(
-              child: TextField(
-                expands: true,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                minLines: null,
-                textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
-                  labelText: 'Body',
-                  hintText: "Write the full report details here",
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 10,
+            children: [
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  label: Text("Title"),
+                  hintText: "Enter a concise title for your report",
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Title is required";
+                  }
+
+                  return null;
+                },
               ),
-            ),
-            TextButton(
-              onPressed: () {},
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
-                foregroundColor: WidgetStateProperty.all(Colors.white),
-                fixedSize: WidgetStateProperty.all(const Size.fromHeight(50)),
+              Expanded(
+                child: TextFormField(
+                  controller: _bodyController,
+                  expands: true,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  minLines: null,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    labelText: 'Body',
+                    hintText: "Write the full report details here",
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Body is required";
+                    }
+
+                    return null;
+                  },
+                ),
               ),
-              child: const Text("Save", style: TextStyle(fontSize: 18)),
-            ),
-          ],
+              TextButton(
+                onPressed: () {
+                  if (!_formKey.currentState!.validate()) return;
+
+                  // All validations passed
+                },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  fixedSize: WidgetStateProperty.all(const Size.fromHeight(50)),
+                ),
+                child: const Text("Save", style: TextStyle(fontSize: 18)),
+              ),
+            ],
+          ),
         ),
       ),
     );
