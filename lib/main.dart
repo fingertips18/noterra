@@ -31,7 +31,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialized Hive for Flutter
-  Hive.initFlutter();
+  await Hive.initFlutter();
 
   // Open the Hive box to store items
   await Hive.openBox(StringConstants.templateBox);
@@ -64,6 +64,7 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.blueAccent),
+        useMaterial3: true,
       ),
       home: const App(title: 'Noterra'),
     );
