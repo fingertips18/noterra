@@ -1,3 +1,3 @@
 class StringConstants {
-  static const hiveBox = "template";
+  static const templateBox = "template";
 }

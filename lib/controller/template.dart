@@ -9,7 +9,7 @@ class TemplateController {
 
   TemplateController({required this.context, required this.fetchDataFunction});
 
-  final hiveBox = Hive.box(StringConstants.hiveBox);
+  final hiveBox = Hive.box(StringConstants.templateBox);
 
   // Fetch all items from Hive
   List<Map<String, dynamic>> fetchData() {
