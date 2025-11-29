@@ -7,9 +7,9 @@ import 'package:noterra/widgets/toast.dart';
 
 class TemplateController {
   final BuildContext context;
-  final Function fetchDataFunction;
+  final VoidCallback? action;
 
-  TemplateController({required this.context, required this.fetchDataFunction});
+  TemplateController({required this.context, this.action});
 
   final hiveBox = Hive.box(StringConstants.templateBox);
 
@@ -63,7 +63,7 @@ class TemplateController {
 
   void _afterAction(String keyword) {
     toast(message: 'Template $keyword successfully', status: Status.success);
-    fetchDataFunction(); // Refresh UI
+    action?.call(); // Refresh UI
     Navigator.of(context).pop(); // Close modals
   }
 }
