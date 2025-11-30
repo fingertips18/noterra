@@ -27,4 +27,14 @@ class Template extends Equatable {
       updatedAt: map["updated_at"] != null ? DateTime.parse(map["updated_at"]) : DateTime.now(),
     );
   }
+
+  Template copyWith({int? key, String? title, String? body, DateTime? createdAt, DateTime? updatedAt}) {
+    return Template(
+      key: key ?? this.key,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

@@ -21,7 +21,7 @@ class TemplateController {
     final templates = templateBox.keys
         .map((key) {
           final item = templateBox.get(key);
-          return {"key": key, "title": item["title"], "body": item["body"]};
+          return {"key": key, "title": item["title"], "body": item["body"], "createdAt": item["created_at"], "updatedAt": item["updated_at"]};
         })
         .toList()
         .reversed
@@ -38,11 +38,12 @@ class TemplateController {
     }
   }
 
-  Future<void> editTemplate({required Template template, required int templateKey}) async {
+  Future<void> editTemplate({required Template template}) async {
     try {
-      await templateBox.put(templateKey, template.toMap());
+      await templateBox.put(template.key, template.toMap());
       _afterAction("edited");
     } catch (e) {
+      print(e);
       toast(message: "Failed to edit template", status: Status.error);
     }
   }

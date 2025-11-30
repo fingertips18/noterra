@@ -105,7 +105,12 @@ class _TemplatesPageState extends State<TemplatesPage> {
                             icon: const Icon(Icons.delete_forever),
                           ),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewTemplate()));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ViewTemplate(controller: _templateController, template: template),
+                              ),
+                            );
                           },
                         ),
                       );
