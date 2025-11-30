@@ -31,7 +31,7 @@ class _AddTemplatePageState extends State<AddTemplatePage> {
 
     setState(() => _isSubmitting = true);
 
-    Template template = Template(title: _titleController.text, body: _bodyController.text);
+    Template template = Template(title: _titleController.text, body: _bodyController.text, createdAt: DateTime.now(), updatedAt: DateTime.now());
 
     await widget.controller.createTemplate(template: template);
 

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<void> confirmation({required BuildContext context, required String title, content, required Function action}) {
+Future<void> confirmation({required BuildContext context, required String title, required content, required Function action}) {
   return showDialog(
     context: context,
     builder: (context) {
