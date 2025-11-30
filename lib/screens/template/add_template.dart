@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:noterra/controller/template.dart';
 import 'package:noterra/model/template.dart';
+import 'package:noterra/utils/validation.dart';
 
 class AddTemplatePage extends StatefulWidget {
   final TemplateController controller;
@@ -16,20 +17,12 @@ class _AddTemplatePageState extends State<AddTemplatePage> {
   final _titleController = TextEditingController();
   final _bodyController = TextEditingController();
 
-  bool _isSubmitting = false;
+  bool _isSaving = false;
 
-  String? onValidation(String keyword, String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return "$keyword is required";
-    }
-
-    return null;
-  }
-
-  void onSubmit() async {
+  void onSave() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSubmitting = true);
+    setState(() => _isSaving = true);
 
     Template template = Template(title: _titleController.text, body: _bodyController.text, createdAt: DateTime.now(), updatedAt: DateTime.now());
 
@@ -38,7 +31,7 @@ class _AddTemplatePageState extends State<AddTemplatePage> {
     _titleController.clear();
     _bodyController.clear();
 
-    setState(() => _isSubmitting = false);
+    setState(() => _isSaving = false);
   }
 
   @override
@@ -59,19 +52,19 @@ class _AddTemplatePageState extends State<AddTemplatePage> {
             children: [
               TextFormField(
                 controller: _titleController,
-                enabled: !_isSubmitting,
+                enabled: !_isSaving,
                 decoration: const InputDecoration(
                   label: Text("Title"),
                   hintText: "Enter a concise title for your report",
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) => onValidation("Title", value),
+                validator: (value) => onRequiredValidation("Title", value),
               ),
               Expanded(
                 child: TextFormField(
                   controller: _bodyController,
-                  enabled: !_isSubmitting,
+                  enabled: !_isSaving,
                   expands: true,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
@@ -83,11 +76,11 @@ class _AddTemplatePageState extends State<AddTemplatePage> {
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => onValidation("Body", value),
+                  validator: (value) => onRequiredValidation("Body", value),
                 ),
               ),
               TextButton(
-                onPressed: _isSubmitting ? null : onSubmit,
+                onPressed: _isSaving ? null : onSave,
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.resolveWith((states) {
                     if (states.contains(WidgetState.disabled)) {
@@ -98,9 +91,9 @@ class _AddTemplatePageState extends State<AddTemplatePage> {
                   }),
                   foregroundColor: WidgetStateProperty.all(Colors.white),
                   fixedSize: WidgetStateProperty.all(const Size.fromHeight(50)),
-                  overlayColor: _isSubmitting ? WidgetStateProperty.all(Colors.transparent) : null,
+                  overlayColor: _isSaving ? WidgetStateProperty.all(Colors.transparent) : null,
                 ),
-                child: _isSubmitting
+                child: _isSaving
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                     : const Text("Save", style: TextStyle(fontSize: 18)),
               ),

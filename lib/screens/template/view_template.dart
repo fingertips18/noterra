@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:noterra/controller/template.dart';
+import 'package:noterra/model/template.dart';
 import 'package:noterra/screens/template/edit_template.dart';
 
 class ViewTemplate extends StatelessWidget {
-  const ViewTemplate({super.key});
+  final TemplateController controller;
+  final Template template;
+
+  const ViewTemplate({super.key, required this.controller, required this.template});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +19,12 @@ class ViewTemplate extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTemplatePage()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditTemplatePage(controller: controller, template: template),
+                ),
+              );
             },
             icon: const Icon(Icons.edit),
           ),
