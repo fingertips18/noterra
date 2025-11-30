@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:noterra/controller/template.dart';
+import 'package:noterra/model/template.dart';
 import 'package:noterra/screens/template/add_template.dart';
-import 'package:noterra/screens/template/edit_template.dart';
 import 'package:noterra/screens/template/view_template.dart';
+import 'package:noterra/utils/format.dart';
 import 'package:noterra/widgets/confirmation.dart';
 
 class TemplatesPage extends StatefulWidget {
@@ -57,7 +58,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                   return ListView.builder(
                     itemCount: templates.length,
                     itemBuilder: (context, index) {
-                      final template = templates[index];
+                      final template = Template.fromMap(templates[index]);
 
                       return Card(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -66,31 +67,42 @@ class _TemplatesPageState extends State<TemplatesPage> {
                         child: ListTile(
                           contentPadding: const EdgeInsets.only(left: 10, right: 4),
                           leading: const Icon(Icons.insert_drive_file),
-                          title: Text(template["title"]),
-                          subtitle: Text(template["body"], style: const TextStyle(color: Colors.black54)),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          title: Text(
+                            template.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTemplatePage()));
-                                },
-                                icon: const Icon(Icons.edit),
+                              Text(
+                                template.body,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.black54),
                               ),
-                              IconButton(
-                                onPressed: () async {
-                                  await confirmation(
-                                    context: context,
-                                    title: "Are you sure you want to delete this template?",
-                                    content: "This action cannot be undone.",
-                                    action: () async {
-                                      await _templateController.deleteTemplate(templateKey: template["key"]);
-                                    },
-                                  );
-                                },
-                                icon: const Icon(Icons.delete_forever),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Updated: ${formatRelativeDate(template.updatedAt)}",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.grey, fontSize: 12),
                               ),
                             ],
+                          ),
+                          trailing: IconButton(
+                            onPressed: () async {
+                              await confirmation(
+                                context: context,
+                                title: "Are you sure you want to delete this template?",
+                                content: "This action cannot be undone.",
+                                action: () async {
+                                  await _templateController.deleteTemplate(templateKey: template.key);
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.delete_forever),
                           ),
                           onTap: () {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewTemplate()));
