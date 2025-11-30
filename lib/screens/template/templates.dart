@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:noterra/controller/template.dart';
 import 'package:noterra/screens/template/add_template.dart';
 import 'package:noterra/screens/template/edit_template.dart';
 import 'package:noterra/screens/template/view_template.dart';
@@ -11,8 +12,18 @@ class TemplatesPage extends StatefulWidget {
 }
 
 class _TemplatesPageState extends State<TemplatesPage> {
+  late TemplateController _templateController;
+
+  @override
+  void initState() {
+    super.initState();
+    _templateController = TemplateController(context: context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final templates = _templateController.listTemplates();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
@@ -39,16 +50,18 @@ class _TemplatesPageState extends State<TemplatesPage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: 5, // temporary number of items
+                itemCount: templates.length,
                 itemBuilder: (context, index) {
+                  final template = templates[index];
+
                   return Card(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     clipBehavior: Clip.antiAlias,
                     margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
                     child: ListTile(
                       leading: const Icon(Icons.insert_drive_file),
-                      title: Text("Template ${index + 1}"),
-                      subtitle: const Text("Last edited: 2025-11-26", style: TextStyle(color: Colors.black54)),
+                      title: Text(template["title"]),
+                      subtitle: Text(template["body"], style: const TextStyle(color: Colors.black54)),
                       trailing: IconButton(
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTemplatePage()));
@@ -68,7 +81,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTemplatePage()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddTemplatePage(controller: _templateController)));
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),

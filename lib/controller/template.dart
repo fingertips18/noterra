@@ -11,13 +11,13 @@ class TemplateController {
 
   TemplateController({required this.context, this.action});
 
-  final hiveBox = Hive.box(StringConstants.templateBox);
+  final templateBox = Hive.box(StringConstants.templateBox);
 
   // Fetch all items from Hive
-  List<Map<String, dynamic>> fetchData() {
-    return hiveBox.keys
+  List<Map<String, dynamic>> listTemplates() {
+    return templateBox.keys
         .map((key) {
-          final item = hiveBox.get(key);
+          final item = templateBox.get(key);
           return {"key": key, "title": item["title"], "body": item["body"]};
         })
         .toList()
@@ -27,7 +27,7 @@ class TemplateController {
 
   Future<void> createTemplate({required Template template}) async {
     try {
-      await hiveBox.add(template.toMap());
+      await templateBox.add(template.toMap());
       _afterAction("saved");
     } catch (e) {
       toast(message: "Failed to create template", status: Status.error);
@@ -36,7 +36,7 @@ class TemplateController {
 
   Future<void> editTemplate({required Template template, required int templateKey}) async {
     try {
-      await hiveBox.put(templateKey, template.toMap());
+      await templateBox.put(templateKey, template.toMap());
       _afterAction("edited");
     } catch (e) {
       toast(message: "Failed to edit template", status: Status.error);
@@ -45,7 +45,7 @@ class TemplateController {
 
   Future<void> deleteTemplate({required int templateKey}) async {
     try {
-      await hiveBox.delete(templateKey);
+      await templateBox.delete(templateKey);
       _afterAction("deleted");
     } catch (e) {
       toast(message: "Failed to delete template", status: Status.error);
@@ -54,7 +54,7 @@ class TemplateController {
 
   Future<void> clearTemplates() async {
     try {
-      await hiveBox.clear();
+      await templateBox.clear();
       _afterAction("cleared");
     } catch (e) {
       toast(message: "Failed to clear templates", status: Status.error);

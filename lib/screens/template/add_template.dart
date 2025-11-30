@@ -3,26 +3,20 @@ import 'package:noterra/controller/template.dart';
 import 'package:noterra/model/template.dart';
 
 class AddTemplatePage extends StatefulWidget {
-  const AddTemplatePage({super.key});
+  final TemplateController controller;
+
+  const AddTemplatePage({super.key, required this.controller});
 
   @override
   State<AddTemplatePage> createState() => _AddTemplatePageState();
 }
 
 class _AddTemplatePageState extends State<AddTemplatePage> {
-  late TemplateController _templateController;
-
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _bodyController = TextEditingController();
 
   bool _isSubmitting = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _templateController = TemplateController(context: context);
-  }
 
   String? onValidation(String keyword, String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -39,7 +33,7 @@ class _AddTemplatePageState extends State<AddTemplatePage> {
 
     Template template = Template(title: _titleController.text, body: _bodyController.text);
 
-    await _templateController.createTemplate(template: template);
+    await widget.controller.createTemplate(template: template);
 
     _titleController.clear();
     _bodyController.clear();
