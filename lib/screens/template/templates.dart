@@ -49,32 +49,34 @@ class _TemplatesPageState extends State<TemplatesPage> {
               ],
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: templates.length,
-                itemBuilder: (context, index) {
-                  final template = templates[index];
+              child: templates.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: templates.length,
+                      itemBuilder: (context, index) {
+                        final template = templates[index];
 
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    clipBehavior: Clip.antiAlias,
-                    margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                    child: ListTile(
-                      leading: const Icon(Icons.insert_drive_file),
-                      title: Text(template["title"]),
-                      subtitle: Text(template["body"], style: const TextStyle(color: Colors.black54)),
-                      trailing: IconButton(
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTemplatePage()));
-                        },
-                        icon: const Icon(Icons.edit),
-                      ),
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewTemplate()));
+                        return Card(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          clipBehavior: Clip.antiAlias,
+                          margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                          child: ListTile(
+                            leading: const Icon(Icons.insert_drive_file),
+                            title: Text(template["title"]),
+                            subtitle: Text(template["body"], style: const TextStyle(color: Colors.black54)),
+                            trailing: IconButton(
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTemplatePage()));
+                              },
+                              icon: const Icon(Icons.edit),
+                            ),
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewTemplate()));
+                            },
+                          ),
+                        );
                       },
-                    ),
-                  );
-                },
-              ),
+                    )
+                  : _emptyTemplates(),
             ),
           ],
         ),
@@ -85,6 +87,19 @@ class _TemplatesPageState extends State<TemplatesPage> {
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _emptyTemplates() {
+    return const Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 10,
+        children: [
+          Icon(Icons.sticky_note_2_outlined, size: 48, color: Colors.grey),
+          Text("No templates yet", style: TextStyle(fontSize: 16, color: Colors.grey)),
+        ],
       ),
     );
   }
