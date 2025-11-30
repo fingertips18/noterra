@@ -134,7 +134,7 @@ class _AppState extends State<App> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatesPage()));
               },
               style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.blueAccent), foregroundColor: WidgetStateProperty.all(Colors.white)),
-              child: const Text('Add/Edit Template'),
+              child: const Text('Templates'),
             ),
             TextButton(
               onPressed: () {

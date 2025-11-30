@@ -3,14 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<void> Confirmation({
-  required String title,
-  content,
-  required BuildContext context,
-  required Function action,
-  bool isKeyInvolved = false,
-  int key = 0,
-}) {
+Future<void> confirmation({required BuildContext context, required String title, content, required Function action}) {
   return showDialog(
     context: context,
     builder: (context) {
@@ -20,14 +13,10 @@ Future<void> Confirmation({
           content: Text(content),
           actions: [
             CupertinoDialogAction(
-              child: const Text("Yes"),
-              onPressed: () {
-                if (isKeyInvolved) {
-                  action(key: key);
-                } else {
-                  action();
-                }
+              onPressed: () async {
+                await action();
               },
+              child: const Text("Yes"),
             ),
             CupertinoDialogAction(
               child: const Text("Dismiss"),
@@ -43,14 +32,10 @@ Future<void> Confirmation({
           content: Text(content),
           actions: [
             ElevatedButton(
-              child: const Text("Yes"),
-              onPressed: () {
-                if (isKeyInvolved) {
-                  action(key: key);
-                } else {
-                  action();
-                }
+              onPressed: () async {
+                await action();
               },
+              child: const Text("Yes"),
             ),
             ElevatedButton(
               child: const Text("Dismiss"),
