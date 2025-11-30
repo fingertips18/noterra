@@ -3,6 +3,7 @@ import 'package:noterra/controller/template.dart';
 import 'package:noterra/screens/template/add_template.dart';
 import 'package:noterra/screens/template/edit_template.dart';
 import 'package:noterra/screens/template/view_template.dart';
+import 'package:noterra/widgets/confirmation.dart';
 
 class TemplatesPage extends StatefulWidget {
   const TemplatesPage({super.key});
@@ -18,12 +19,11 @@ class _TemplatesPageState extends State<TemplatesPage> {
   void initState() {
     super.initState();
     _templateController = TemplateController(context: context);
+    _templateController.listTemplates();
   }
 
   @override
   Widget build(BuildContext context) {
-    final templates = _templateController.listTemplates();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
@@ -43,40 +43,64 @@ class _TemplatesPageState extends State<TemplatesPage> {
               children: [
                 Text("Saved Templates", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 Text(
-                  "Browse and manage all your report templates stored on this device. Tap any template to view, edit, or share it.",
+                  "Manage your report templates on this device. Tap a template to view, edit, or delete it, or use the + button to create a new template.",
                   style: TextStyle(fontSize: 16, color: Colors.black54),
                 ),
               ],
             ),
             Expanded(
-              child: templates.isNotEmpty
-                  ? ListView.builder(
-                      itemCount: templates.length,
-                      itemBuilder: (context, index) {
-                        final template = templates[index];
+              child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: _templateController.templatesNotifier,
+                builder: (context, templates, _) {
+                  if (templates.isEmpty) return _emptyTemplates();
 
-                        return Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          clipBehavior: Clip.antiAlias,
-                          margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                          child: ListTile(
-                            leading: const Icon(Icons.insert_drive_file),
-                            title: Text(template["title"]),
-                            subtitle: Text(template["body"], style: const TextStyle(color: Colors.black54)),
-                            trailing: IconButton(
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTemplatePage()));
-                              },
-                              icon: const Icon(Icons.edit),
-                            ),
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewTemplate()));
-                            },
+                  return ListView.builder(
+                    itemCount: templates.length,
+                    itemBuilder: (context, index) {
+                      final template = templates[index];
+
+                      return Card(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        clipBehavior: Clip.antiAlias,
+                        margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.only(left: 10, right: 4),
+                          leading: const Icon(Icons.insert_drive_file),
+                          title: Text(template["title"]),
+                          subtitle: Text(template["body"], style: const TextStyle(color: Colors.black54)),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTemplatePage()));
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                              IconButton(
+                                onPressed: () async {
+                                  await confirmation(
+                                    context: context,
+                                    title: "Are you sure you want to delete this template?",
+                                    content: "This action cannot be undone.",
+                                    action: () async {
+                                      await _templateController.deleteTemplate(templateKey: template["key"]);
+                                    },
+                                  );
+                                },
+                                icon: const Icon(Icons.delete_forever),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    )
-                  : _emptyTemplates(),
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewTemplate()));
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),

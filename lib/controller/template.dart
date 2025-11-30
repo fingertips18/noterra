@@ -13,9 +13,12 @@ class TemplateController {
 
   final templateBox = Hive.box(StringConstants.templateBox);
 
+  // Reactive list of templates
+  final ValueNotifier<List<Map<String, dynamic>>> templatesNotifier = ValueNotifier([]);
+
   // Fetch all items from Hive
-  List<Map<String, dynamic>> listTemplates() {
-    return templateBox.keys
+  void listTemplates() {
+    final templates = templateBox.keys
         .map((key) {
           final item = templateBox.get(key);
           return {"key": key, "title": item["title"], "body": item["body"]};
@@ -23,6 +26,7 @@ class TemplateController {
         .toList()
         .reversed
         .toList();
+    templatesNotifier.value = templates;
   }
 
   Future<void> createTemplate({required Template template}) async {
@@ -43,7 +47,7 @@ class TemplateController {
     }
   }
 
-  Future<void> deleteTemplate({required int templateKey}) async {
+  Future<void> deleteTemplate({required dynamic templateKey}) async {
     try {
       await templateBox.delete(templateKey);
       _afterAction("deleted");
@@ -63,6 +67,7 @@ class TemplateController {
 
   void _afterAction(String keyword) {
     toast(message: 'Template $keyword successfully', status: Status.success);
+    listTemplates();
     action?.call(); // Refresh UI
     Navigator.of(context).pop(); // Close modals
   }
