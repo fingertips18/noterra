@@ -21,7 +21,7 @@ class TemplateController {
     final templates = templateBox.keys
         .map((key) {
           final item = templateBox.get(key);
-          return {"key": key, "title": item["title"], "body": item["body"], "createdAt": item["created_at"], "updatedAt": item["updated_at"]};
+          return {"key": key, "title": item["title"], "body": item["body"], "created_at": item["created_at"], "updated_at": item["updated_at"]};
         })
         .toList()
         .reversed
@@ -43,7 +43,6 @@ class TemplateController {
       await templateBox.put(template.key, template.toMap());
       _afterAction("edited");
     } catch (e) {
-      print(e);
       toast(message: "Failed to edit template", status: Status.error);
     }
   }
