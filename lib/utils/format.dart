@@ -13,7 +13,24 @@ String formatRelativeDate(DateTime date) {
 
   // Today
   if (difference == 0) {
-    return "Today ${timeFormat.format(date)}";
+    final diff = now.difference(date);
+
+    // Less than 1 minute ago
+    if (diff.inMinutes == 0) {
+      return "${diff.inSeconds} seconds ago";
+    }
+    // Less than 1 hour ago
+    else if (diff.inHours == 0) {
+      return "${diff.inMinutes} minutes ago";
+    }
+    // Less than 24 hours ago
+    else if (diff.inHours < 24) {
+      return "${diff.inHours} hours ago";
+    }
+    // Otherwise just show today with time
+    else {
+      return "Today ${timeFormat.format(date)}";
+    }
   }
   // Yesterday
   else if (difference == 1) {
