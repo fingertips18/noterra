@@ -30,7 +30,21 @@ class _TemplatesPageState extends State<TemplatesPage> {
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
         title: const Text('Templates Page', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.clear_all))],
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await confirmation(
+                context: context,
+                title: "Delete all templates?",
+                content: "This will permanently remove all saved templates. You won't be able to recover them.",
+                action: () async {
+                  await _templateController.clearTemplates();
+                },
+              );
+            },
+            icon: const Icon(Icons.clear_all),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsetsGeometry.all(20),
