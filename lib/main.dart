@@ -6,6 +6,7 @@ import 'package:flutter/material.dart'
         Center,
         Colors,
         Column,
+        EdgeInsets,
         FontWeight,
         MaterialApp,
         MaterialPageRoute,
@@ -127,21 +128,29 @@ class _AppState extends State<App> {
           // action in the IDE, or press "p" in the console), to see the
           // wireframe for each widget.
           mainAxisAlignment: .center,
-          spacing: 10,
+          spacing: 20,
           children: [
             TextButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatesPage()));
               },
-              style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.blueAccent), foregroundColor: WidgetStateProperty.all(Colors.white)),
-              child: const Text('Templates'),
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+                padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
+              ),
+              child: const Text('Templates', style: TextStyle(fontSize: 18)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const GeneratePage()));
               },
-              style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.blueAccent), foregroundColor: WidgetStateProperty.all(Colors.white)),
-              child: const Text('Generate Daily Report'),
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+                padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
+              ),
+              child: const Text('Generate Daily Report', style: TextStyle(fontSize: 18)),
             ),
           ],
         ),
