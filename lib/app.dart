@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
     show
         AppBar,
@@ -11,6 +10,8 @@ import 'package:flutter/material.dart'
         EdgeInsets,
         ElevatedButton,
         FontWeight,
+        IconButton,
+        Icons,
         MaterialPageRoute,
         Navigator,
         Scaffold,
@@ -55,57 +56,68 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-        title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      ),
-      body: ValueListenableBuilder<bool>(
-        valueListenable: _oAuthController.isSignedIn,
-        builder: (context, isSignedIn, _) {
-          if (!isSignedIn) {
-            return Center(
-              child: ElevatedButton.icon(
-                icon: SvgPicture.asset(Assets.google, height: 24, width: 24),
-                label: const Text("Sign in with Google"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, minimumSize: const Size(200, 50)),
-                onPressed: () => _oAuthController.signIn(),
+    return ValueListenableBuilder<bool>(
+      valueListenable: _oAuthController.isSignedIn,
+      builder: (context, isSignedIn, child) {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.blueAccent,
+            foregroundColor: Colors.white,
+            title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            actions: isSignedIn
+                ? [
+                    IconButton(
+                      onPressed: () async {
+                        await _oAuthController.signOut();
+                      },
+                      icon: const Icon(Icons.logout),
+                    ),
+                  ]
+                : null,
+          ),
+          body: isSignedIn ? child : _signInButton(),
+        );
+      },
+      child: Center(
+        child: Column(
+          mainAxisAlignment: .center,
+          spacing: 20,
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatesPage()));
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+                padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
               ),
-            );
-          }
-
-          return Center(
-            child: Column(
-              mainAxisAlignment: .center,
-              spacing: 20,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatesPage()));
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
-                    foregroundColor: WidgetStateProperty.all(Colors.white),
-                    padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
-                  ),
-                  child: const Text('Templates', style: TextStyle(fontSize: 18)),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const GeneratePage()));
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
-                    foregroundColor: WidgetStateProperty.all(Colors.white),
-                    padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
-                  ),
-                  child: const Text('Generate Daily Report', style: TextStyle(fontSize: 18)),
-                ),
-              ],
+              child: const Text('Templates', style: TextStyle(fontSize: 18)),
             ),
-          );
-        },
+            TextButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const GeneratePage()));
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+                padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
+              ),
+              child: const Text('Generate Daily Report', style: TextStyle(fontSize: 18)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _signInButton() {
+    return Center(
+      child: ElevatedButton.icon(
+        icon: SvgPicture.asset(Assets.google, height: 24, width: 24),
+        label: const Text("Sign in with Google"),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, minimumSize: const Size(200, 50)),
+        onPressed: () async => await _oAuthController.signIn(),
       ),
     );
   }
