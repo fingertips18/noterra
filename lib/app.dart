@@ -7,6 +7,7 @@ import 'package:flutter/material.dart'
         Center,
         Colors,
         Column,
+        MainAxisAlignment,
         EdgeInsets,
         ElevatedButton,
         FontWeight,
@@ -75,7 +76,7 @@ class _AppState extends State<App> {
       },
       child: Center(
         child: Column(
-          mainAxisAlignment: .center,
+          mainAxisAlignment: MainAxisAlignment.center,
           spacing: 20,
           children: [
             TextButton(

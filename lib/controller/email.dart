@@ -24,15 +24,15 @@ class EmailController {
     try {
       final authClient = currentUser.authorizationClient;
 
-      // Get authorization headers (map with 'authorization': 'Bearer ...')
-      final headers = await authClient.authorizationHeaders(_scopes);
+      // Get authorization headers (map with 'Authorization': 'Bearer ...')
+      final headers = await authClient.authorizationHeaders(_scopes, promptIfNecessary: true);
       if (headers == null || !headers.containsKey("Authorization")) {
         debugPrint('Failed to obtain authorization headers: $headers');
         emailsNotifier.value = [];
         return;
       }
 
-      // List messages with labelID = REPORT
+      // List messages with labelIds=SENT
       final listUri = Uri.parse('$baseURL?labelIds=SENT&maxResults=$maxResults');
 
       final listRes = await http.get(listUri, headers: headers);

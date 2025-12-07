@@ -44,7 +44,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
   void initState() {
     super.initState();
 
-    _emailController = EmailController(currentUser: widget.oAuthController.currentUser!);
+    _emailController = EmailController(currentUser: widget.oAuthController.currentUser!); // User should already be available
     _emailController.loadSentMessages();
   }
 
@@ -69,6 +69,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
             if (emails.isEmpty) return _emptyEmails();
 
             return ListView.builder(
+              itemCount: emails.length,
               itemBuilder: (context, index) {
                 final email = emails[index];
                 return Card(
