@@ -120,7 +120,7 @@ class _AppState extends State<App> {
             icon: SvgPicture.asset(Assets.google, height: 24, width: 24),
             label: const Text("Sign in with Google"),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, minimumSize: const Size(200, 50)),
-            onPressed: isLoading ? null : _oAuthController.signIn,
+            onPressed: _oAuthController.signIn,
           );
         },
       ),

@@ -16,6 +16,7 @@ import 'package:flutter/material.dart'
         ListTile,
         ListView,
         MainAxisSize,
+        Navigator,
         RoundedRectangleBorder,
         Scaffold,
         State,
@@ -24,7 +25,10 @@ import 'package:flutter/material.dart'
         TextOverflow,
         TextStyle,
         ValueListenableBuilder,
-        Widget;
+        Widget,
+        WidgetsBinding;
+import '/constants/status.dart' show Status;
+import '/widgets/toast.dart' show toast;
 import '/model/email.dart' show Email;
 import '/controller/email.dart' show EmailController;
 import '/controller/oauth.dart' show OAuthController;
@@ -47,10 +51,16 @@ class _EmailsScreenState extends State<EmailsScreen> {
 
     final currentUser = widget.oAuthController.currentUser;
 
-    if (currentUser != null) {
-      _emailController = EmailController(currentUser: currentUser);
-      _emailController.loadSentMessages();
+    if (currentUser == null) {
+      // Navigate back and show toast error - user shouldn't reach this screen without auth
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        toast(message: "Unauthorized", status: Status.error);
+        Navigator.of(context).pop();
+      });
+      return;
     }
+    _emailController = EmailController(currentUser: currentUser);
+    _emailController.loadSentMessages();
   }
 
   @override

@@ -19,7 +19,13 @@ class Email extends Equatable {
   }
 
   factory Email.fromMap(Map<String, dynamic> map) {
-    return Email(id: map["id"], snippet: map["snippet"], subject: map["subject"], to: map["to"], internalDate: map["internalDate"]);
+    return Email(
+      id: map["id"] as String? ?? '',
+      snippet: map["snippet"] as String? ?? '',
+      subject: map["subject"] as String? ?? '(No subject)',
+      to: map["to"] as String? ?? '(No recipient)',
+      internalDate: map["internalDate"] as int? ?? 0,
+    );
   }
 
   Email copyWith({String? id, String? snippet, String? subject, String? to, int? internalDate}) {
