@@ -1,95 +1,81 @@
-import 'dart:convert';
+import 'package:flutter/material.dart' show ValueNotifier, debugPrint;
+import 'package:google_sign_in/google_sign_in.dart' show GoogleSignInAccount;
+import 'package:googleapis/gmail/v1.dart' as gmail show GmailApi;
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart' show GoogleApisGoogleSignInAuth;
+import "/model/email.dart" show Email;
 
-import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
-
-const baseURL = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
+// Define the scopes needed (must match what was used during authentication)
+const scopes = ['https://www.googleapis.com/auth/gmail.readonly'];
 
 class EmailController {
   final GoogleSignInAccount currentUser;
 
   EmailController({required this.currentUser});
 
-  static const List<String> _scopes = ['https://www.googleapis.com/auth/gmail.readonly'];
-
   // All retrieved emails
-  final ValueNotifier<List<Map<String, dynamic>>> emailsNotifier = ValueNotifier([]);
+  final ValueNotifier<List<Email>> emailsNotifier = ValueNotifier([]);
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
 
-  /// Load latest SENT messages ("Sent Mail" label)
+  // Load latest SENT messages ("Sent Mail" label)
   Future<void> loadSentMessages({int maxResults = 50}) async {
     isLoading.value = true;
     emailsNotifier.value = [];
+
     try {
-      final authClient = currentUser.authorizationClient;
+      // Get authorization from the account
+      final authorization = await currentUser.authorizationClient.authorizeScopes(scopes);
 
-      // Get authorization headers (map with 'Authorization': 'Bearer ...')
-      final headers = await authClient.authorizationHeaders(_scopes, promptIfNecessary: true);
-      if (headers == null || !headers.containsKey("Authorization")) {
-        debugPrint('Failed to obtain authorization headers: $headers');
-        emailsNotifier.value = [];
-        return;
-      }
+      // Use the extension to get authenticated client
+      final authClient = authorization.authClient(scopes: scopes);
 
-      // List messages with labelIds=SENT
-      final listUri = Uri.parse('$baseURL?labelIds=SENT&maxResults=$maxResults');
+      // Create typed Gmail API client
+      final gmailApi = gmail.GmailApi(authClient);
 
-      final listRes = await http.get(listUri, headers: headers);
-      if (listRes.statusCode != 200) {
-        debugPrint('List call failed: ${listRes.statusCode} ${listRes.body}');
-        emailsNotifier.value = [];
-        return;
-      }
+      // List messages with SENT label using typed method
+      final messagesResponse = await gmailApi.users.messages.list('me', labelIds: ['SENT'], maxResults: maxResults);
 
-      final listJson = jsonDecode(listRes.body) as Map<String, dynamic>;
-      final List msgs = listJson['messages'] ?? [];
-
-      final List<Map<String, dynamic>> output = [];
+      final messages = messagesResponse.messages ?? [];
+      final List<Email> output = [];
 
       // Fetch metadata for each message
-      for (final m in msgs) {
-        final id = m["id"] as String?;
-        if (id == null) continue;
+      for (final message in messages) {
+        if (message.id == null) continue;
 
-        final msgUri = Uri.parse('$baseURL/$id?format=metadata&metadataHeaders=Subject&metadataHeaders=To');
-        final msgRes = await http.get(msgUri, headers: headers);
-        if (msgRes.statusCode != 200) continue;
+        try {
+          // Get message details with metadata format
+          final fullMessage = await gmailApi.users.messages.get('me', message.id!, format: 'metadata', metadataHeaders: ['Subject', 'To']);
 
-        final msgJson = jsonDecode(msgRes.body) as Map<String, dynamic>;
+          // Extract headers using typed models
+          final headers = fullMessage.payload?.headers ?? [];
+          String subject = '(No subject)';
+          String to = '(No recipient)';
 
-        final payload = msgJson["payload"] as Map<String, dynamic>?;
-        final headersList = payload?["headers"] as List<dynamic>? ?? [];
-
-        String subject = "(No subject)";
-        String to = "(No recipient)";
-
-        for (final h in headersList) {
-          if (h is Map<String, dynamic>) {
-            final name = h["name"] as String? ?? "";
-            final value = h["value"] as String? ?? "";
-            if (name.toLowerCase() == "subject") subject = value;
-            if (name.toLowerCase() == "to") to = value;
+          for (final header in headers) {
+            if (header.name?.toLowerCase() == 'subject') {
+              subject = header.value ?? subject;
+            }
+            if (header.name?.toLowerCase() == 'to') {
+              to = header.value ?? to;
+            }
           }
-        }
 
-        final internalDateRaw = msgJson["internalDate"];
-        int internalDate;
-        if (internalDateRaw is int) {
-          internalDate = internalDateRaw;
-        } else if (internalDateRaw is String) {
-          internalDate = int.tryParse(internalDateRaw) ?? 0;
-        } else {
-          internalDate = 0;
-        }
+          // Parse internal date (comes as string milliseconds since epoch)
+          final internalDate = fullMessage.internalDate != null ? int.tryParse(fullMessage.internalDate!) ?? 0 : 0;
 
-        output.add({"id": id, "snippet": msgJson["snippet"], "subject": subject, "to": to, "internalDate": internalDate});
+          output.add(Email(id: message.id!, snippet: fullMessage.snippet ?? '', subject: subject, to: to, internalDate: internalDate));
+        } catch (e) {
+          debugPrint('Error fetching message ${message.id}: $e');
+          continue; // Skip problematic messages
+        }
       }
 
       // Sort by internalDate descending (newest first)
-      output.sort((a, b) => (b["internalDate"] as int).compareTo(a["internalDate"] as int));
+      output.sort((a, b) => b.internalDate.compareTo(a.internalDate));
 
       emailsNotifier.value = output;
+
+      // Close the client when done
+      authClient.close();
     } catch (e, st) {
       debugPrint('Error loading sent messages: $e\n$st');
       emailsNotifier.value = [];

@@ -1,18 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
     show
         AppBar,
         BuildContext,
         ButtonStyle,
         Center,
+        CircularProgressIndicator,
         Colors,
         Column,
-        MainAxisAlignment,
+        Size,
         EdgeInsets,
         ElevatedButton,
         FontWeight,
         IconButton,
+        Icon,
         Icons,
+        MainAxisAlignment,
         MaterialPageRoute,
         Navigator,
         Scaffold,
@@ -109,11 +111,18 @@ class _AppState extends State<App> {
 
   Widget _signInButton() {
     return Center(
-      child: ElevatedButton.icon(
-        icon: SvgPicture.asset(Assets.google, height: 24, width: 24),
-        label: const Text("Sign in with Google"),
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, minimumSize: const Size(200, 50)),
-        onPressed: () async => await _oAuthController.signIn(),
+      child: ValueListenableBuilder(
+        valueListenable: _oAuthController.isLoading,
+        builder: (context, isLoading, _) {
+          if (isLoading) return const CircularProgressIndicator();
+
+          return ElevatedButton.icon(
+            icon: SvgPicture.asset(Assets.google, height: 24, width: 24),
+            label: const Text("Sign in with Google"),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, minimumSize: const Size(200, 50)),
+            onPressed: isLoading ? null : _oAuthController.signIn,
+          );
+        },
       ),
     );
   }

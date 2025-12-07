@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:noterra/constants/status.dart';
-import 'package:noterra/env/env.dart';
-import 'package:noterra/widgets/toast.dart';
+import 'package:flutter/material.dart' show BuildContext, ValueNotifier, VoidCallback;
+import 'package:google_sign_in/google_sign_in.dart' show GoogleSignIn, GoogleSignInAccount;
+import '/constants/status.dart' show Status;
+import '/env/env.dart' show Env;
+import '/widgets/toast.dart' show toast;
 
 class OAuthController {
   final BuildContext context;
@@ -13,15 +13,26 @@ class OAuthController {
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   final ValueNotifier<bool> isSignedIn = ValueNotifier(false);
+  final ValueNotifier<bool> isLoading = ValueNotifier(false);
 
   GoogleSignInAccount? _currentUser;
   GoogleSignInAccount? get currentUser => _currentUser;
 
   Future<void> init() async {
-    await _googleSignIn.initialize(clientId: Env.iosClientID);
+    if (isLoading.value) return;
+
+    isLoading.value = true;
+    try {
+      await _googleSignIn.initialize(clientId: Env.iosClientID);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> signIn() async {
+    if (isLoading.value) return;
+
+    isLoading.value = true;
     try {
       _currentUser = await _googleSignIn.authenticate(scopeHint: ['https://www.googleapis.com/auth/gmail.readonly']);
       if (_currentUser == null) {
@@ -34,10 +45,15 @@ class OAuthController {
       action?.call();
     } catch (e) {
       toast(message: "Sign-in failed: $e", status: Status.error);
+    } finally {
+      isLoading.value = false;
     }
   }
 
   Future<void> signOut() async {
+    if (isLoading.value) return;
+
+    isLoading.value = true;
     try {
       await _googleSignIn.signOut();
       _currentUser = null;
@@ -46,6 +62,8 @@ class OAuthController {
       action?.call();
     } catch (e) {
       toast(message: "Sign-out failed: $e", status: Status.error);
+    } finally {
+      isLoading.value = false;
     }
   }
 }

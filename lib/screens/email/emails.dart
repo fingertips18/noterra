@@ -25,6 +25,7 @@ import 'package:flutter/material.dart'
         TextStyle,
         ValueListenableBuilder,
         Widget;
+import '/model/email.dart' show Email;
 import '/controller/email.dart' show EmailController;
 import '/controller/oauth.dart' show OAuthController;
 
@@ -44,8 +45,12 @@ class _EmailsScreenState extends State<EmailsScreen> {
   void initState() {
     super.initState();
 
-    _emailController = EmailController(currentUser: widget.oAuthController.currentUser!); // User should already be available
-    _emailController.loadSentMessages();
+    final currentUser = widget.oAuthController.currentUser;
+
+    if (currentUser != null) {
+      _emailController = EmailController(currentUser: currentUser);
+      _emailController.loadSentMessages();
+    }
   }
 
   @override
@@ -63,7 +68,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
 
           return child!;
         },
-        child: ValueListenableBuilder(
+        child: ValueListenableBuilder<List<Email>>(
           valueListenable: _emailController.emailsNotifier,
           builder: (context, emails, _) {
             if (emails.isEmpty) return _emptyEmails();
@@ -78,13 +83,13 @@ class _EmailsScreenState extends State<EmailsScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
                   child: ListTile(
                     title: Text(
-                      email["subject"],
+                      email.subject,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                      "To: ${email["to"]}",
+                      'To: ${email.to}',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.bold),
