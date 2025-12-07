@@ -15,6 +15,7 @@ class OAuthController {
   final ValueNotifier<bool> isSignedIn = ValueNotifier(false);
 
   GoogleSignInAccount? _currentUser;
+  GoogleSignInAccount? get currentUser => _currentUser;
 
   Future<void> init() async {
     await _googleSignIn.initialize(clientId: Env.iosClientID);
@@ -22,11 +23,12 @@ class OAuthController {
 
   Future<void> signIn() async {
     try {
-      _currentUser = await _googleSignIn.authenticate();
+      _currentUser = await _googleSignIn.authenticate(scopeHint: ['https://www.googleapis.com/auth/gmail.readonly']);
       if (_currentUser == null) {
         toast(message: "Sign-in cancelled", status: Status.info);
         return;
       }
+
       isSignedIn.value = true;
       toast(message: "Signed in as ${_currentUser!.email}", status: Status.success);
       action?.call();
