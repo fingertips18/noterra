@@ -30,7 +30,7 @@ import 'package:flutter_svg/svg.dart' show SvgPicture;
 import 'constants/assets.dart' show Assets;
 import 'controller/oauth.dart' show OAuthController;
 import 'screens/email/emails.dart' show EmailsScreen;
-import 'screens/template/templates.dart' show TemplatesPage;
+import 'screens/template/templates.dart' show TemplatesScreen;
 
 class App extends StatefulWidget {
   final String title;
@@ -83,7 +83,7 @@ class _AppState extends State<App> {
           children: [
             TextButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatesPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const TemplatesScreen()));
               },
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(Colors.blueAccent),

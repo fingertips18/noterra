@@ -3,17 +3,17 @@ import 'package:noterra/controller/template.dart';
 import 'package:noterra/model/template.dart';
 import 'package:noterra/utils/validation.dart';
 
-class EditTemplatePage extends StatefulWidget {
+class EditTemplateScreen extends StatefulWidget {
   final TemplateController controller;
   final Template template;
 
-  const EditTemplatePage({super.key, required this.controller, required this.template});
+  const EditTemplateScreen({super.key, required this.controller, required this.template});
 
   @override
-  State<EditTemplatePage> createState() => _EditTemplatePageState();
+  State<EditTemplateScreen> createState() => _EditTemplateScreenState();
 }
 
-class _EditTemplatePageState extends State<EditTemplatePage> {
+class _EditTemplateScreenState extends State<EditTemplateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _bodyController = TextEditingController();

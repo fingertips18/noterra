@@ -6,14 +6,14 @@ import 'package:noterra/screens/template/view_template.dart';
 import 'package:noterra/utils/format.dart';
 import 'package:noterra/widgets/confirmation.dart';
 
-class TemplatesPage extends StatefulWidget {
-  const TemplatesPage({super.key});
+class TemplatesScreen extends StatefulWidget {
+  const TemplatesScreen({super.key});
 
   @override
-  State<TemplatesPage> createState() => _TemplatesPageState();
+  State<TemplatesScreen> createState() => _TemplatesScreenState();
 }
 
-class _TemplatesPageState extends State<TemplatesPage> {
+class _TemplatesScreenState extends State<TemplatesScreen> {
   late TemplateController _templateController;
 
   @override
@@ -47,7 +47,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsetsGeometry.all(20),
+        padding: const EdgeInsetsGeometry.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 10,
@@ -122,7 +122,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ViewTemplate(controller: _templateController, template: template),
+                                builder: (context) => ViewTemplateScreen(controller: _templateController, template: template),
                               ),
                             );
                           },
@@ -138,7 +138,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AddTemplatePage(controller: _templateController)));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddTemplateScreen(controller: _templateController)));
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
