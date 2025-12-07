@@ -1,17 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
     show
         AppBar,
         BuildContext,
         ButtonStyle,
         Center,
+        CircularProgressIndicator,
         Colors,
         Column,
+        Size,
         EdgeInsets,
         ElevatedButton,
         FontWeight,
         IconButton,
+        Icon,
         Icons,
+        MainAxisAlignment,
         MaterialPageRoute,
         Navigator,
         Scaffold,
@@ -26,7 +29,7 @@ import 'package:flutter/material.dart'
 import 'package:flutter_svg/svg.dart' show SvgPicture;
 import 'constants/assets.dart' show Assets;
 import 'controller/oauth.dart' show OAuthController;
-import 'screens/generate.dart' show GeneratePage;
+import 'screens/email/emails.dart' show EmailsScreen;
 import 'screens/template/templates.dart' show TemplatesPage;
 
 class App extends StatefulWidget {
@@ -39,19 +42,14 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  late OAuthController _oAuthController;
+  late final OAuthController _oAuthController;
 
   @override
   void initState() {
     super.initState();
 
-    _oAuthController = OAuthController(context: context, action: _refresh);
+    _oAuthController = OAuthController(context: context);
     _oAuthController.init();
-  }
-
-  // Called after sign-in
-  void _refresh() {
-    setState(() {});
   }
 
   @override
@@ -80,7 +78,7 @@ class _AppState extends State<App> {
       },
       child: Center(
         child: Column(
-          mainAxisAlignment: .center,
+          mainAxisAlignment: MainAxisAlignment.center,
           spacing: 20,
           children: [
             TextButton(
@@ -96,14 +94,14 @@ class _AppState extends State<App> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const GeneratePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => EmailsScreen(oAuthController: _oAuthController)));
               },
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
                 foregroundColor: WidgetStateProperty.all(Colors.white),
                 padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
               ),
-              child: const Text('Generate Daily Report', style: TextStyle(fontSize: 18)),
+              child: const Text('Emails', style: TextStyle(fontSize: 18)),
             ),
           ],
         ),
@@ -113,11 +111,18 @@ class _AppState extends State<App> {
 
   Widget _signInButton() {
     return Center(
-      child: ElevatedButton.icon(
-        icon: SvgPicture.asset(Assets.google, height: 24, width: 24),
-        label: const Text("Sign in with Google"),
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, minimumSize: const Size(200, 50)),
-        onPressed: () async => await _oAuthController.signIn(),
+      child: ValueListenableBuilder(
+        valueListenable: _oAuthController.isLoading,
+        builder: (context, isLoading, _) {
+          if (isLoading) return const CircularProgressIndicator();
+
+          return ElevatedButton.icon(
+            icon: SvgPicture.asset(Assets.google, height: 24, width: 24),
+            label: const Text("Sign in with Google"),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, minimumSize: const Size(200, 50)),
+            onPressed: _oAuthController.signIn,
+          );
+        },
       ),
     );
   }
