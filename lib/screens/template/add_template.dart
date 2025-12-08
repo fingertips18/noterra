@@ -19,6 +19,14 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
 
   bool _isSaving = false;
 
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _bodyController.dispose();
+
+    super.dispose();
+  }
+
   void onSave() async {
     if (!_formKey.currentState!.validate()) return;
 

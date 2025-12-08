@@ -28,6 +28,14 @@ class _EditTemplateScreenState extends State<EditTemplateScreen> {
     _bodyController.value = TextEditingValue(text: widget.template.body);
   }
 
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _bodyController.dispose();
+
+    super.dispose();
+  }
+
   void onSave() async {
     if (!_formKey.currentState!.validate()) return;
 

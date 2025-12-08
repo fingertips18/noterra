@@ -29,7 +29,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
-        title: const Text('Templates Page', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Templates', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             onPressed: () async {
