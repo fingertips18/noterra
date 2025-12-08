@@ -4,11 +4,11 @@ import 'package:noterra/model/template.dart';
 import 'package:noterra/screens/template/edit_template.dart';
 import 'package:noterra/utils/format.dart';
 
-class ViewTemplate extends StatelessWidget {
+class ViewTemplateScreen extends StatelessWidget {
   final TemplateController controller;
   final Template template;
 
-  const ViewTemplate({super.key, required this.controller, required this.template});
+  const ViewTemplateScreen({super.key, required this.controller, required this.template});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class ViewTemplate extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditTemplatePage(controller: controller, template: template),
+                  builder: (context) => EditTemplateScreen(controller: controller, template: template),
                 ),
               );
             },

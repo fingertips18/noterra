@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:noterra/constants/status.dart';
-import 'package:noterra/constants/string.dart';
-import 'package:noterra/model/template.dart';
-import 'package:noterra/widgets/toast.dart';
+import 'package:flutter/material.dart' show BuildContext, Navigator, ValueNotifier, VoidCallback;
+import 'package:hive_flutter/hive_flutter.dart' show Hive;
+import '/constants/status.dart' show Status;
+import '/constants/string.dart' show StringConstants;
+import '/model/template.dart' show Template;
+import '/widgets/toast.dart' show toast;
 
 class TemplateController {
   final BuildContext context;

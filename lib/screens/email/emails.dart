@@ -17,6 +17,8 @@ import 'package:flutter/material.dart'
         ListView,
         MainAxisSize,
         Navigator,
+        Padding,
+        EdgeInsetsGeometry,
         RoundedRectangleBorder,
         Scaffold,
         State,
@@ -71,44 +73,47 @@ class _EmailsScreenState extends State<EmailsScreen> {
         foregroundColor: Colors.white,
         title: const Text('Emails', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: _emailController.isLoading,
-        builder: (context, isLoading, child) {
-          if (isLoading) return const Center(child: CircularProgressIndicator());
+      body: Padding(
+        padding: const EdgeInsetsGeometry.all(10),
+        child: ValueListenableBuilder(
+          valueListenable: _emailController.isLoading,
+          builder: (context, isLoading, child) {
+            if (isLoading) return const Center(child: CircularProgressIndicator());
 
-          return child!;
-        },
-        child: ValueListenableBuilder<List<Email>>(
-          valueListenable: _emailController.emailsNotifier,
-          builder: (context, emails, _) {
-            if (emails.isEmpty) return _emptyEmails();
-
-            return ListView.builder(
-              itemCount: emails.length,
-              itemBuilder: (context, index) {
-                final email = emails[index];
-                return Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  clipBehavior: Clip.antiAlias,
-                  margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                  child: ListTile(
-                    title: Text(
-                      email.subject,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      'To: ${email.to}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                );
-              },
-            );
+            return child!;
           },
+          child: ValueListenableBuilder<List<Email>>(
+            valueListenable: _emailController.emailsNotifier,
+            builder: (context, emails, _) {
+              if (emails.isEmpty) return _emptyEmails();
+
+              return ListView.builder(
+                itemCount: emails.length,
+                itemBuilder: (context, index) {
+                  final email = emails[index];
+                  return Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    clipBehavior: Clip.antiAlias,
+                    margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                    child: ListTile(
+                      title: Text(
+                        email.subject,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'To: ${email.to}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
