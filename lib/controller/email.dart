@@ -43,7 +43,7 @@ class EmailController {
       hasMore.value = _nextPageToken != null;
 
       final messages = messagesResponse.messages ?? [];
-      final List<Email> output = [];
+      List<Email> output = [];
 
       // Fetch metadata for each message
       for (final message in messages) {
@@ -77,15 +77,15 @@ class EmailController {
         }
       }
 
+      // If has more append to existing list
+      if (pageToken != null) {
+        output = [...emailsNotifier.value, ...output];
+      }
+
       // Sort by internalDate descending (newest first)
       output.sort((a, b) => b.internalDate.compareTo(a.internalDate));
 
-      // If has more append to existing list
-      if (pageToken != null) {
-        emailsNotifier.value = [...emailsNotifier.value, ...output];
-      } else {
-        emailsNotifier.value = output;
-      }
+      emailsNotifier.value = output;
     } finally {
       // Always close the client
       authClient.close();

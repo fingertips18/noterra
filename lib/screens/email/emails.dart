@@ -34,8 +34,8 @@ import 'package:flutter/material.dart'
         TextStyle,
         ValueListenableBuilder,
         Widget,
+        WidgetStateProperty,
         WidgetsBinding;
-import 'package:flutter/widgets.dart';
 import '/constants/status.dart' show Status;
 import '/widgets/toast.dart' show toast;
 import '/model/email.dart' show Email;
