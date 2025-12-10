@@ -113,11 +113,17 @@ class EmailController {
 
   Future<void> refresh() async {
     isRefreshing.value = true;
+    emailsNotifier.value = [];
+
+    // Reset pagination
+    _nextPageToken = null;
+    hasMore.value = true;
 
     try {
       await _listSentMessages();
     } catch (e, st) {
       debugPrint('Error refreshing sent messages: $e\n$st');
+      emailsNotifier.value = [];
     } finally {
       isRefreshing.value = false;
     }
