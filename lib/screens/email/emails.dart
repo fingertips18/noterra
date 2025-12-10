@@ -127,7 +127,9 @@ class _EmailsScreenState extends State<EmailsScreen> {
                                   }
 
                                   return ElevatedButton(
-                                    onPressed: _emailController.more,
+                                    onPressed: () {
+                                      _emailController.more();
+                                    },
                                     style: ButtonStyle(
                                       backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
                                       foregroundColor: WidgetStateProperty.all(Colors.white),

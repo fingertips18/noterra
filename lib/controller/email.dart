@@ -124,7 +124,9 @@ class EmailController {
   }
 
   Future<void> more() async {
-    if (_nextPageToken == null || isLoadingMore.value) return;
+    if (_nextPageToken == null || isLoadingMore.value || isLoading.value || isRefreshing.value) {
+      return;
+    }
 
     isLoadingMore.value = true;
 
