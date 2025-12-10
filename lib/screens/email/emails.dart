@@ -82,7 +82,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
         },
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: ValueListenableBuilder(
+          child: ValueListenableBuilder<bool>(
             valueListenable: _emailController.isRefreshing,
             builder: (context, isRefreshing, child) {
               return Opacity(
@@ -90,7 +90,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
                 child: IgnorePointer(ignoring: isRefreshing, child: child!),
               );
             },
-            child: ValueListenableBuilder(
+            child: ValueListenableBuilder<bool>(
               valueListenable: _emailController.isLoading,
               builder: (context, isLoading, child) {
                 if (isLoading) return const Center(child: CircularProgressIndicator());
