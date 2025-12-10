@@ -4,6 +4,7 @@ import 'package:flutter/material.dart'
         AppBar,
         BorderRadius,
         BuildContext,
+        ButtonStyle,
         Card,
         Center,
         CircularProgressIndicator,
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart'
         Colors,
         Column,
         EdgeInsets,
+        ElevatedButton,
         FontWeight,
         Icon,
         Icons,
@@ -24,6 +26,7 @@ import 'package:flutter/material.dart'
         RefreshIndicator,
         RoundedRectangleBorder,
         Scaffold,
+        SizedBox,
         State,
         StatefulWidget,
         Text,
@@ -32,6 +35,7 @@ import 'package:flutter/material.dart'
         ValueListenableBuilder,
         Widget,
         WidgetsBinding;
+import 'package:flutter/widgets.dart';
 import '/constants/status.dart' show Status;
 import '/widgets/toast.dart' show toast;
 import '/model/email.dart' show Email;
@@ -77,9 +81,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
         title: const Text('Emails', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          await _emailController.refresh();
-        },
+        onRefresh: _emailController.refresh,
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: ValueListenableBuilder<bool>(
@@ -106,8 +108,39 @@ class _EmailsScreenState extends State<EmailsScreen> {
 
                   return ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: emails.length,
+                    itemCount: emails.length + 1, // +1 for load more button
                     itemBuilder: (context, index) {
+                      // Show load more button at the end
+                      if (index == emails.length) {
+                        return ValueListenableBuilder<bool>(
+                          valueListenable: _emailController.hasMore,
+                          builder: (context, hasMore, _) {
+                            if (!hasMore) return const SizedBox.shrink();
+
+                            return Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: ValueListenableBuilder<bool>(
+                                valueListenable: _emailController.isLoadingMore,
+                                builder: (context, isLoadingMore, _) {
+                                  if (isLoadingMore) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  }
+
+                                  return ElevatedButton(
+                                    onPressed: _emailController.more,
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
+                                      foregroundColor: WidgetStateProperty.all(Colors.white),
+                                    ),
+                                    child: const Text('Load More', style: TextStyle(fontSize: 14)),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      }
+
                       final email = emails[index];
                       return Card(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
