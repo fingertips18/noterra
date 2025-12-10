@@ -11,7 +11,6 @@ import 'package:flutter/material.dart'
         Colors,
         Column,
         EdgeInsets,
-        EdgeInsetsGeometry,
         FontWeight,
         Icon,
         Icons,
@@ -82,12 +81,12 @@ class _EmailsScreenState extends State<EmailsScreen> {
           await _emailController.refresh();
         },
         child: Padding(
-          padding: const EdgeInsetsGeometry.all(10),
+          padding: const EdgeInsets.all(10),
           child: ValueListenableBuilder(
             valueListenable: _emailController.isRefreshing,
             builder: (context, isRefreshing, child) {
               return Opacity(
-                opacity: 0.5,
+                opacity: isRefreshing ? 0.5 : 1.0,
                 child: IgnorePointer(ignoring: isRefreshing, child: child!),
               );
             },
@@ -101,7 +100,9 @@ class _EmailsScreenState extends State<EmailsScreen> {
               child: ValueListenableBuilder<List<Email>>(
                 valueListenable: _emailController.emailsNotifier,
                 builder: (context, emails, _) {
-                  if (emails.isEmpty) return _emptyEmails();
+                  if (emails.isEmpty) {
+                    return ListView(physics: const AlwaysScrollableScrollPhysics(), children: [_emptyEmails()]);
+                  }
 
                   return ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
