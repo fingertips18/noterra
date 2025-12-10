@@ -14,10 +14,17 @@ class EmailController {
 
   // All retrieved emails
   final ValueNotifier<List<Email>> emailsNotifier = ValueNotifier([]);
+
+  // Loading states
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
   final ValueNotifier<bool> isRefreshing = ValueNotifier(false);
 
-  Future<void> _listSentMessages({int maxResults = 10}) async {
+  // Load more
+  String? _nextPageToken; // Track the next page token
+  final ValueNotifier<bool> hasMore = ValueNotifier(true);
+  final ValueNotifier<bool> isLoadingMore = ValueNotifier(false);
+
+  Future<void> _listSentMessages({int maxResults = 10, String? pageToken}) async {
     // Get authorization from the account
     final authorization = await currentUser.authorizationClient.authorizeScopes(_scopes);
 
@@ -29,10 +36,14 @@ class EmailController {
       final gmailApi = gmail.GmailApi(authClient);
 
       // List messages with SENT label using typed method
-      final messagesResponse = await gmailApi.users.messages.list('me', labelIds: ['SENT'], maxResults: maxResults);
+      final messagesResponse = await gmailApi.users.messages.list('me', labelIds: ['SENT'], maxResults: maxResults, pageToken: pageToken);
+
+      // Store the next page token
+      _nextPageToken = messagesResponse.nextPageToken;
+      hasMore.value = _nextPageToken != null;
 
       final messages = messagesResponse.messages ?? [];
-      final List<Email> output = [];
+      List<Email> output = [];
 
       // Fetch metadata for each message
       for (final message in messages) {
@@ -66,6 +77,11 @@ class EmailController {
         }
       }
 
+      // If has more append to existing list
+      if (pageToken != null) {
+        output = [...emailsNotifier.value, ...output];
+      }
+
       // Sort by internalDate descending (newest first)
       output.sort((a, b) => b.internalDate.compareTo(a.internalDate));
 
@@ -81,8 +97,12 @@ class EmailController {
     isLoading.value = true;
     emailsNotifier.value = [];
 
+    // Reset pagination
+    _nextPageToken = null;
+    hasMore.value = true;
+
     try {
-      await _listSentMessages();
+      await _listSentMessages(); // Start fresh without pageToken
     } catch (e, st) {
       debugPrint('Error loading sent messages: $e\n$st');
       emailsNotifier.value = [];
@@ -93,13 +113,35 @@ class EmailController {
 
   Future<void> refresh() async {
     isRefreshing.value = true;
+    emailsNotifier.value = [];
+
+    // Reset pagination
+    _nextPageToken = null;
+    hasMore.value = true;
 
     try {
       await _listSentMessages();
     } catch (e, st) {
       debugPrint('Error refreshing sent messages: $e\n$st');
+      emailsNotifier.value = [];
     } finally {
       isRefreshing.value = false;
+    }
+  }
+
+  Future<void> more() async {
+    if (_nextPageToken == null || isLoadingMore.value || isLoading.value || isRefreshing.value) {
+      return;
+    }
+
+    isLoadingMore.value = true;
+
+    try {
+      await _listSentMessages(pageToken: _nextPageToken);
+    } catch (e, st) {
+      debugPrint('Error loading more messages: $e\n$st');
+    } finally {
+      isLoadingMore.value = false;
     }
   }
 }
