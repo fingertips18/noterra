@@ -109,6 +109,10 @@ class EmailController {
   }
 
   Future<void> refresh() async {
+    if (stateNotifier.value is LoadingState || stateNotifier.value is RefreshState || stateNotifier.value is MoreState) {
+      return;
+    }
+
     // Show refreshing state with current emails visible
     stateNotifier.value = RefreshState(emails: _emails, hasMore: _hasMore);
 
