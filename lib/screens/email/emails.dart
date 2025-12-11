@@ -30,12 +30,14 @@ import 'package:flutter/material.dart'
         State,
         StatefulWidget,
         Text,
+        TextAlign,
         TextOverflow,
         TextStyle,
         ValueListenableBuilder,
         Widget,
         WidgetStateProperty,
         WidgetsBinding;
+import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
 import '/constants/status.dart' show Status;
 import '/widgets/toast.dart' show toast;
 import '/model/email.dart' show Email;
@@ -73,6 +75,12 @@ class _EmailsScreenState extends State<EmailsScreen> {
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -84,91 +92,81 @@ class _EmailsScreenState extends State<EmailsScreen> {
         onRefresh: _emailController.refresh,
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: ValueListenableBuilder<bool>(
-            valueListenable: _emailController.isRefreshing,
-            builder: (context, isRefreshing, child) {
-              return Opacity(
-                opacity: isRefreshing ? 0.5 : 1.0,
-                child: IgnorePointer(ignoring: isRefreshing, child: child!),
-              );
+          child: ValueListenableBuilder<EmailState>(
+            valueListenable: _emailController.stateNotifier,
+            builder: (context, state, _) {
+              return switch (state) {
+                LoadingState() => const Center(child: CircularProgressIndicator()),
+
+                RefreshState(:final emails, :final hasMore) => Opacity(
+                  opacity: 0.5,
+                  child: IgnorePointer(ignoring: true, child: _listEmails(emails, hasMore, isLoadingMore: false)),
+                ),
+
+                MoreState(:final emails) => _listEmails(emails, true, isLoadingMore: true),
+
+                DataState(:final emails, :final hasMore) => _listEmails(emails, hasMore, isLoadingMore: false),
+
+                ErrorState(:final message, :final emails) => emails.isEmpty ? _errorView(message) : _listEmails(emails, false, isLoadingMore: false),
+              };
             },
-            child: ValueListenableBuilder<bool>(
-              valueListenable: _emailController.isLoading,
-              builder: (context, isLoading, child) {
-                if (isLoading) return const Center(child: CircularProgressIndicator());
-
-                return child!;
-              },
-              child: ValueListenableBuilder<List<Email>>(
-                valueListenable: _emailController.emailsNotifier,
-                builder: (context, emails, _) {
-                  if (emails.isEmpty) {
-                    return ListView(physics: const AlwaysScrollableScrollPhysics(), children: [_emptyEmails()]);
-                  }
-
-                  return ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: emails.length + 1, // +1 for load more button
-                    itemBuilder: (context, index) {
-                      // Show load more button at the end
-                      if (index == emails.length) {
-                        return ValueListenableBuilder<bool>(
-                          valueListenable: _emailController.hasMore,
-                          builder: (context, hasMore, _) {
-                            if (!hasMore) return const SizedBox.shrink();
-
-                            return Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: ValueListenableBuilder<bool>(
-                                valueListenable: _emailController.isLoadingMore,
-                                builder: (context, isLoadingMore, _) {
-                                  if (isLoadingMore) {
-                                    return const Center(child: CircularProgressIndicator());
-                                  }
-
-                                  return ElevatedButton(
-                                    onPressed: () {
-                                      _emailController.more();
-                                    },
-                                    style: ButtonStyle(
-                                      backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
-                                      foregroundColor: WidgetStateProperty.all(Colors.white),
-                                    ),
-                                    child: const Text('Load More', style: TextStyle(fontSize: 14)),
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                        );
-                      }
-
-                      final email = emails[index];
-                      return Card(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        clipBehavior: Clip.antiAlias,
-                        margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                        child: ListTile(
-                          title: Text(
-                            email.subject,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            'To: ${email.to}',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _listEmails(List<Email> emails, bool hasMore, {required bool isLoadingMore}) {
+    if (emails.isEmpty) {
+      return ListView(physics: const AlwaysScrollableScrollPhysics(), children: [_emptyEmails()]);
+    }
+
+    return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      itemCount: emails.length + 1, // +1 for load more button
+      itemBuilder: (context, index) {
+        if (index == emails.length) {
+          return _loadMoreButton(hasMore, isLoadingMore);
+        }
+
+        final email = emails[index];
+        return _emailCard(email);
+      },
+    );
+  }
+
+  Widget _loadMoreButton(bool hasMore, bool isLoadingMore) {
+    if (!hasMore) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: isLoadingMore
+          ? const Center(child: CircularProgressIndicator())
+          : ElevatedButton(
+              onPressed: _emailController.more,
+              style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.blueAccent), foregroundColor: WidgetStateProperty.all(Colors.white)),
+              child: const Text('Load More', style: TextStyle(fontSize: 14)),
+            ),
+    );
+  }
+
+  Widget _emailCard(Email email) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias,
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+      child: ListTile(
+        title: Text(
+          email.subject,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          'To: ${email.to}',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -184,6 +182,29 @@ class _EmailsScreenState extends State<EmailsScreen> {
           Text("No sent emails yet.\nTry sending some messages to see them here.", style: TextStyle(fontSize: 16, color: Colors.grey)),
         ],
       ),
+    );
+  }
+
+  Widget _errorView(String message) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 10,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              Text(
+                "Error: $message",
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, color: Colors.red),
+              ),
+              ElevatedButton(onPressed: _emailController.load, child: const Text('Retry')),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
