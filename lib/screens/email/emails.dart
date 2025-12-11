@@ -126,9 +126,9 @@ class _EmailsScreenState extends State<EmailsScreen> {
 
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: emails.length + 1, // +1 for load more button
+      itemCount: emails.length + (hasMore ? 1 : 0), // +1 for load more button
       itemBuilder: (context, index) {
-        if (index == emails.length) {
+        if (index == emails.length && hasMore) {
           return _loadMoreButton(hasMore, isLoadingMore);
         }
 
@@ -146,7 +146,9 @@ class _EmailsScreenState extends State<EmailsScreen> {
       child: isLoadingMore
           ? const Center(child: CircularProgressIndicator())
           : ElevatedButton(
-              onPressed: _emailController.more,
+              onPressed: () async {
+                await _emailController.more();
+              },
               style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.blueAccent), foregroundColor: WidgetStateProperty.all(Colors.white)),
               child: const Text('Load More', style: TextStyle(fontSize: 14)),
             ),
