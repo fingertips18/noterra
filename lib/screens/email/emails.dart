@@ -76,7 +76,10 @@ class _EmailsScreenState extends State<EmailsScreen> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    final currentUser = widget.oAuthController.currentUser;
+    if (currentUser != null) {
+      _emailController.dispose();
+    }
     super.dispose();
   }
 
