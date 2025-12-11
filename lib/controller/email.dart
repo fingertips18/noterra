@@ -113,6 +113,9 @@ class EmailController {
     stateNotifier.value = RefreshState(emails: _emails, hasMore: _hasMore);
 
     final previousEmails = _emails;
+    final previousHasMore = _hasMore;
+    final previousNextPageToken = _nextPageToken;
+
     _emails = [];
     _nextPageToken = null;
     _hasMore = true;
@@ -124,6 +127,8 @@ class EmailController {
       debugPrint('Error refreshing sent messages: $e\n$st');
       // Restore previous state on error
       _emails = previousEmails;
+      _hasMore = previousHasMore;
+      _nextPageToken = previousNextPageToken;
       stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
       toast(message: "Failed to refresh messages", status: Status.error);
     }
