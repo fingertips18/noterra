@@ -2,8 +2,10 @@ import 'package:flutter/material.dart' show ValueNotifier, debugPrint;
 import 'package:google_sign_in/google_sign_in.dart' show GoogleSignInAccount;
 import 'package:googleapis/gmail/v1.dart' as gmail show GmailApi;
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart' show GoogleApisGoogleSignInAuth;
+import '/widgets/toast.dart' show toast;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
 import "/model/email.dart" show Email;
+import '/constants/status.dart' show Status;
 
 // Define the scopes needed (must match what was used during authentication)
 const _scopes = ['https://www.googleapis.com/auth/gmail.readonly'];
@@ -102,6 +104,7 @@ class EmailController {
     } catch (e, st) {
       debugPrint('Error loading sent messages: $e\n$st');
       stateNotifier.value = ErrorState(message: e.toString());
+      toast(message: "Failed to load messages", status: Status.error);
     }
   }
 
@@ -122,6 +125,7 @@ class EmailController {
       // Restore previous state on error
       _emails = previousEmails;
       stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
+      toast(message: "Failed to refresh messages", status: Status.error);
     }
   }
 
@@ -143,6 +147,7 @@ class EmailController {
       debugPrint('Error loading more messages: $e\n$st');
       // Return to previous state on error
       stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
+      toast(message: "Failed to load more messages", status: Status.error);
     }
   }
 
