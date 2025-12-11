@@ -2,7 +2,10 @@ import 'package:flutter/material.dart' show ValueNotifier, debugPrint;
 import 'package:google_sign_in/google_sign_in.dart' show GoogleSignInAccount;
 import 'package:googleapis/gmail/v1.dart' as gmail show GmailApi;
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart' show GoogleApisGoogleSignInAuth;
+import '/widgets/toast.dart' show toast;
+import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
 import "/model/email.dart" show Email;
+import '/constants/status.dart' show Status;
 
 // Define the scopes needed (must match what was used during authentication)
 const _scopes = ['https://www.googleapis.com/auth/gmail.readonly'];
@@ -12,17 +15,11 @@ class EmailController {
 
   EmailController({required this.currentUser});
 
-  // All retrieved emails
-  final ValueNotifier<List<Email>> emailsNotifier = ValueNotifier([]);
+  final ValueNotifier<EmailState> stateNotifier = ValueNotifier(const LoadingState());
 
-  // Loading states
-  final ValueNotifier<bool> isLoading = ValueNotifier(false);
-  final ValueNotifier<bool> isRefreshing = ValueNotifier(false);
-
-  // Load more
-  String? _nextPageToken; // Track the next page token
-  final ValueNotifier<bool> hasMore = ValueNotifier(true);
-  final ValueNotifier<bool> isLoadingMore = ValueNotifier(false);
+  List<Email> _emails = [];
+  String? _nextPageToken;
+  bool _hasMore = true;
 
   Future<void> _listSentMessages({int maxResults = 10, String? pageToken}) async {
     // Get authorization from the account
@@ -40,7 +37,7 @@ class EmailController {
 
       // Store the next page token
       _nextPageToken = messagesResponse.nextPageToken;
-      hasMore.value = _nextPageToken != null;
+      _hasMore = _nextPageToken != null;
 
       final messages = messagesResponse.messages ?? [];
       List<Email> output = [];
@@ -79,13 +76,13 @@ class EmailController {
 
       // If has more append to existing list
       if (pageToken != null) {
-        output = [...emailsNotifier.value, ...output];
+        output = [..._emails, ...output];
       }
 
       // Sort by internalDate descending (newest first)
       output.sort((a, b) => b.internalDate.compareTo(a.internalDate));
 
-      emailsNotifier.value = output;
+      _emails = output;
     } finally {
       // Always close the client
       authClient.close();
@@ -94,54 +91,76 @@ class EmailController {
 
   // Load latest SENT messages ("Sent Mail" label)
   Future<void> load() async {
-    isLoading.value = true;
-    emailsNotifier.value = [];
+    stateNotifier.value = const LoadingState();
 
-    // Reset pagination
+    // Reset
+    _emails = [];
     _nextPageToken = null;
-    hasMore.value = true;
+    _hasMore = true;
 
     try {
       await _listSentMessages(); // Start fresh without pageToken
+      stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
     } catch (e, st) {
       debugPrint('Error loading sent messages: $e\n$st');
-      emailsNotifier.value = [];
-    } finally {
-      isLoading.value = false;
+      stateNotifier.value = ErrorState(message: e.toString());
+      toast(message: "Failed to load messages", status: Status.error);
     }
   }
 
   Future<void> refresh() async {
-    isRefreshing.value = true;
-    emailsNotifier.value = [];
+    if (stateNotifier.value is LoadingState || stateNotifier.value is RefreshState || stateNotifier.value is MoreState) {
+      return;
+    }
 
-    // Reset pagination
+    // Show refreshing state with current emails visible
+    stateNotifier.value = RefreshState(emails: _emails, hasMore: _hasMore);
+
+    final previousEmails = _emails;
+    final previousHasMore = _hasMore;
+    final previousNextPageToken = _nextPageToken;
+
+    _emails = [];
     _nextPageToken = null;
-    hasMore.value = true;
+    _hasMore = true;
 
     try {
       await _listSentMessages();
+      stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
     } catch (e, st) {
       debugPrint('Error refreshing sent messages: $e\n$st');
-      emailsNotifier.value = [];
-    } finally {
-      isRefreshing.value = false;
+      // Restore previous state on error
+      _emails = previousEmails;
+      _hasMore = previousHasMore;
+      _nextPageToken = previousNextPageToken;
+      stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
+      toast(message: "Failed to refresh messages", status: Status.error);
     }
   }
 
   Future<void> more() async {
-    if (_nextPageToken == null || isLoadingMore.value || isLoading.value || isRefreshing.value) {
+    // Guard checks
+    if (_nextPageToken == null || !_hasMore) return;
+
+    // Prevent concurrent loads
+    if (stateNotifier.value is LoadingState || stateNotifier.value is RefreshState || stateNotifier.value is MoreState) {
       return;
     }
 
-    isLoadingMore.value = true;
+    stateNotifier.value = MoreState(emails: _emails);
 
     try {
       await _listSentMessages(pageToken: _nextPageToken);
+      stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
     } catch (e, st) {
       debugPrint('Error loading more messages: $e\n$st');
-    } finally {
-      isLoadingMore.value = false;
+      // Return to previous state on error
+      stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
+      toast(message: "Failed to load more messages", status: Status.error);
     }
+  }
+
+  void dispose() {
+    stateNotifier.dispose();
   }
 }
