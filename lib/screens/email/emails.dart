@@ -11,6 +11,7 @@ import 'package:flutter/material.dart'
         Clip,
         Colors,
         Column,
+        CrossAxisAlignment,
         EdgeInsets,
         ElevatedButton,
         FontWeight,
@@ -37,6 +38,7 @@ import 'package:flutter/material.dart'
         Widget,
         WidgetStateProperty,
         WidgetsBinding;
+import '/utils/format.dart' show formatRelativeDate;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
 import '/constants/status.dart' show Status;
 import '/widgets/toast.dart' show toast;
@@ -167,11 +169,23 @@ class _EmailsScreenState extends State<EmailsScreen> {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(
-          'To: ${email.to}',
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 4,
+          children: [
+            Text(
+              'To: ${email.to}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              "Updated: ${formatRelativeDate(email.date)}",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
         ),
       ),
     );

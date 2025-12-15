@@ -1,10 +1,43 @@
-import 'package:flutter/material.dart';
-import 'package:noterra/controller/template.dart';
-import 'package:noterra/model/template.dart';
-import 'package:noterra/screens/template/add_template.dart';
-import 'package:noterra/screens/template/view_template.dart';
-import 'package:noterra/utils/format.dart';
-import 'package:noterra/widgets/confirmation.dart';
+import 'package:flutter/material.dart'
+    show
+        AppBar,
+        BorderRadius,
+        BuildContext,
+        Card,
+        Center,
+        Clip,
+        Colors,
+        Column,
+        CrossAxisAlignment,
+        EdgeInsets,
+        EdgeInsetsGeometry,
+        Expanded,
+        FloatingActionButton,
+        FontWeight,
+        Icon,
+        IconButton,
+        Icons,
+        ListTile,
+        ListView,
+        MainAxisSize,
+        MaterialPageRoute,
+        Navigator,
+        Padding,
+        RoundedRectangleBorder,
+        Scaffold,
+        State,
+        StatefulWidget,
+        Text,
+        TextOverflow,
+        TextStyle,
+        ValueListenableBuilder,
+        Widget;
+import '/controller/template.dart' show TemplateController;
+import '/model/template.dart' show Template;
+import '/screens/template/add_template.dart' show AddTemplateScreen;
+import '/screens/template/view_template.dart' show ViewTemplateScreen;
+import '/utils/format.dart' show formatRelativeDate;
+import '/widgets/confirmation.dart' show confirmation;
 
 class TemplatesScreen extends StatefulWidget {
   const TemplatesScreen({super.key});
@@ -89,6 +122,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 4,
                             children: [
                               Text(
                                 template.body,
@@ -96,7 +130,6 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(color: Colors.black54),
                               ),
-                              const SizedBox(height: 4),
                               Text(
                                 "Updated: ${formatRelativeDate(template.updatedAt)}",
                                 maxLines: 1,
