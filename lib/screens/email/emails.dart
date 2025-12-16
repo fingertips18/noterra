@@ -21,6 +21,7 @@ import 'package:flutter/material.dart'
         ListTile,
         ListView,
         MainAxisSize,
+        MaterialPageRoute,
         Navigator,
         Opacity,
         Padding,
@@ -38,6 +39,7 @@ import 'package:flutter/material.dart'
         Widget,
         WidgetStateProperty,
         WidgetsBinding;
+import '/screens/email/view_email.dart' show ViewEmailScreen;
 import '/utils/format.dart' show formatRelativeDate;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
 import '/constants/status.dart' show Status;
@@ -187,6 +189,9 @@ class _EmailsScreenState extends State<EmailsScreen> {
             ),
           ],
         ),
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ViewEmailScreen(email: email)));
+        },
       ),
     );
   }

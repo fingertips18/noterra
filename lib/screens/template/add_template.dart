@@ -51,7 +51,7 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
         title: const Text('Add Template', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
-        padding: const EdgeInsetsGeometry.all(20),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(

@@ -32,9 +32,10 @@ class ViewTemplateScreen extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsetsGeometry.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 5,
           children: [
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -59,7 +60,6 @@ class ViewTemplateScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 5),
             Text(template.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             Text(template.body, style: const TextStyle(fontSize: 16, color: Colors.black54)),
           ],
