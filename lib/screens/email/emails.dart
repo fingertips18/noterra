@@ -176,7 +176,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
           spacing: 4,
           children: [
             Text(
-              'To: ${email.to}',
+              email.snippet,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.bold),
