@@ -60,7 +60,7 @@ class _EditTemplateScreenState extends State<EditTemplateScreen> {
         title: const Text('Edit Template', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
-        padding: const EdgeInsetsGeometry.all(20),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(

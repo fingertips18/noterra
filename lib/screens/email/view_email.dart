@@ -6,7 +6,7 @@ import 'package:flutter/material.dart'
         Column,
         CrossAxisAlignment,
         Divider,
-        EdgeInsetsGeometry,
+        EdgeInsets,
         FontWeight,
         Padding,
         Scaffold,
@@ -32,7 +32,7 @@ class ViewEmailScreen extends StatelessWidget {
         title: const Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
-        padding: const EdgeInsetsGeometry.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 5,

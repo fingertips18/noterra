@@ -32,7 +32,7 @@ class ViewTemplateScreen extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsetsGeometry.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 5,
