@@ -32,10 +32,10 @@ class EmailController {
 
     try {
       // Create typed Gmail API client
-      final gmailApi = gmail.GmailApi(authClient);
+      final gmailAPI = gmail.GmailApi(authClient);
 
       // List messages with SENT label using typed method
-      final messagesResponse = await gmailApi.users.messages.list('me', labelIds: ['SENT'], maxResults: maxResults, pageToken: pageToken);
+      final messagesResponse = await gmailAPI.users.messages.list('me', labelIds: ['SENT'], maxResults: maxResults, pageToken: pageToken);
 
       // Store the next page token
       _nextPageToken = messagesResponse.nextPageToken;
@@ -50,7 +50,7 @@ class EmailController {
 
         try {
           // Get message details with metadata format
-          final fullMessage = await gmailApi.users.messages.get('me', message.id!, format: 'metadata', metadataHeaders: ['Subject', 'To']);
+          final fullMessage = await gmailAPI.users.messages.get('me', message.id!, format: 'metadata', metadataHeaders: ['Subject', 'To']);
 
           // Extract headers using typed models
           final headers = fullMessage.payload?.headers ?? [];
