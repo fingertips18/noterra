@@ -30,14 +30,18 @@ class Email extends Equatable {
     );
   }
 
-  Email copyWith({String? id, String? snippet, String? subject, String? to, int? internalDate, String? body}) {
+  Email copyWith({String? id, String? snippet, String? subject, String? to, int? internalDate, Object? body = const _Sentinel()}) {
     return Email(
       id: id ?? this.id,
       snippet: snippet ?? this.snippet,
       subject: subject ?? this.subject,
       to: to ?? this.to,
       internalDate: internalDate ?? this.internalDate,
-      body: body ?? this.body,
+      body: body == const _Sentinel() ? this.body : body as String?,
     );
   }
+}
+
+class _Sentinel {
+  const _Sentinel();
 }

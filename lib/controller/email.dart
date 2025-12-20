@@ -191,9 +191,7 @@ class EmailController {
     // Check parts for multipart messages
     if (payload.parts != null) {
       for (final part in payload.parts!) {
-        if (part.mimeType == 'text/html' && part.body?.data != null) {
-          return _decodeBase64(part.body!.data!);
-        } else if (part.mimeType == 'text/plain' && part.body?.data != null) {
+        if (part.mimeType == 'text/plain' && part.body?.data != null) {
           return _decodeBase64(part.body!.data!);
         } else if (part.parts != null) {
           // Recursive search in nested parts

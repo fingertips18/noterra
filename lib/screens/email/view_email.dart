@@ -37,7 +37,7 @@ class ViewEmailScreen extends StatefulWidget {
 }
 
 class _ViewEmailScreenState extends State<ViewEmailScreen> {
-  bool _isLoading = false;
+  bool _isLoading = true;
   String _emailBody = "";
   String? _error;
 
@@ -52,14 +52,12 @@ class _ViewEmailScreenState extends State<ViewEmailScreen> {
       final body = await widget.emailController.fetchEmailBody(widget.email.id);
       setState(() {
         _emailBody = body;
+        _isLoading = false;
       });
     } catch (e) {
       setState(() {
         _error = e.toString();
         _emailBody = widget.email.snippet; // Fallback to snippet
-      });
-    } finally {
-      setState(() {
         _isLoading = false;
       });
     }
@@ -84,7 +82,7 @@ class _ViewEmailScreenState extends State<ViewEmailScreen> {
               TextSpan(
                 children: [
                   const TextSpan(
-                    text: "To:",
+                    text: "To: ",
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                   ),
                   TextSpan(
