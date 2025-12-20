@@ -190,7 +190,12 @@ class _EmailsScreenState extends State<EmailsScreen> {
           ],
         ),
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ViewEmailScreen(email: email)));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ViewEmailScreen(emailController: _emailController, email: email),
+            ),
+          );
         },
       ),
     );

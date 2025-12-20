@@ -1,6 +1,8 @@
+import 'dart:convert' show base64, utf8;
+
 import 'package:flutter/material.dart' show ValueNotifier, debugPrint;
 import 'package:google_sign_in/google_sign_in.dart' show GoogleSignInAccount;
-import 'package:googleapis/gmail/v1.dart' as gmail show GmailApi;
+import 'package:googleapis/gmail/v1.dart' as gmail show GmailApi, MessagePart;
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart' show GoogleApisGoogleSignInAuth;
 import '/widgets/toast.dart' show toast;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
@@ -30,10 +32,10 @@ class EmailController {
 
     try {
       // Create typed Gmail API client
-      final gmailApi = gmail.GmailApi(authClient);
+      final gmailAPI = gmail.GmailApi(authClient);
 
       // List messages with SENT label using typed method
-      final messagesResponse = await gmailApi.users.messages.list('me', labelIds: ['SENT'], maxResults: maxResults, pageToken: pageToken);
+      final messagesResponse = await gmailAPI.users.messages.list('me', labelIds: ['SENT'], maxResults: maxResults, pageToken: pageToken);
 
       // Store the next page token
       _nextPageToken = messagesResponse.nextPageToken;
@@ -48,7 +50,7 @@ class EmailController {
 
         try {
           // Get message details with metadata format
-          final fullMessage = await gmailApi.users.messages.get('me', message.id!, format: 'metadata', metadataHeaders: ['Subject', 'To']);
+          final fullMessage = await gmailAPI.users.messages.get('me', message.id!, format: 'metadata', metadataHeaders: ['Subject', 'To']);
 
           // Extract headers using typed models
           final headers = fullMessage.payload?.headers ?? [];
@@ -157,6 +159,111 @@ class EmailController {
       // Return to previous state on error
       stateNotifier.value = DataState(emails: _emails, hasMore: _hasMore);
       toast(message: "Failed to load more messages", status: Status.error);
+    }
+  }
+
+  // Helper method to decode base64url encoded data
+  String _decodeBase64(String data) {
+    try {
+      // Gmail uses base64url encoding (RFC 4648)
+      // Replace URL-safe characters and add padding if necessary
+      String normalized = data.replaceAll('-', '+').replaceAll('_', '/');
+
+      // Add padding if needed
+      while (normalized.length % 4 != 0) {
+        normalized += '=';
+      }
+
+      final bytes = base64.decode(normalized);
+      return utf8.decode(bytes, allowMalformed: true);
+    } catch (e) {
+      debugPrint('Error decoding base64: $e');
+      return '';
+    }
+  }
+
+  // Helper method to extract plain text from message payload
+  String _extractTextFromPayload(gmail.MessagePart payload) {
+    if (payload.mimeType == 'text/plain' && payload.body?.data != null) {
+      return _decodeBase64(payload.body!.data!);
+    }
+
+    // Check parts for multipart messages
+    if (payload.parts != null) {
+      for (final part in payload.parts!) {
+        if (part.mimeType == 'text/plain' && part.body?.data != null) {
+          return _decodeBase64(part.body!.data!);
+        } else if (part.parts != null) {
+          // Recursive search in nested parts
+          final result = _extractTextFromPayload(part);
+          if (result.isNotEmpty) {
+            return result;
+          }
+        }
+      }
+    }
+
+    return '';
+  }
+
+  // Helper method to extract HTML from message payload
+  String _extractHTMLFromPayload(gmail.MessagePart payload) {
+    if (payload.mimeType == 'text/html' && payload.body?.data != null) {
+      return _decodeBase64(payload.body!.data!);
+    }
+
+    // Check parts for multipart messages
+    if (payload.parts != null) {
+      for (final part in payload.parts!) {
+        if (part.mimeType == 'text/html' && part.body?.data != null) {
+          return _decodeBase64(part.body!.data!);
+        } else if (part.parts != null) {
+          // Recursive search in nested parts
+          final result = _extractHTMLFromPayload(part);
+          if (result.isNotEmpty) {
+            return result;
+          }
+        }
+      }
+    }
+
+    return '';
+  }
+
+  Future<String> fetchEmailBody(String messageId) async {
+    // Get authorization from the account
+    final authorization = await currentUser.authorizationClient.authorizeScopes(_scopes);
+
+    // Use the extension to get authenticated client
+    final authClient = authorization.authClient(scopes: _scopes);
+
+    try {
+      // Create typed Gmail API client
+      final gmailAPI = gmail.GmailApi(authClient);
+
+      // Fetch the full message with full format to get the body
+      final fullMessage = await gmailAPI.users.messages.get('me', messageId, format: 'full');
+
+      // Extract the body from the message payload
+      String body = '';
+
+      if (fullMessage.payload != null) {
+        // Try to get plain text body first
+        body = _extractTextFromPayload(fullMessage.payload!);
+
+        if (body.isEmpty) {
+          // Fallback to HTML body if plain text is not available
+          body = _extractHTMLFromPayload(fullMessage.payload!);
+        }
+      }
+
+      return body.isNotEmpty ? body : fullMessage.snippet ?? 'No content available';
+    } catch (e) {
+      debugPrint('Error fetching email body: $e');
+      throw Exception('Failed to load email body: $e');
+    } finally {
+      // Always close the client
+      authClient.close();
     }
   }
 
