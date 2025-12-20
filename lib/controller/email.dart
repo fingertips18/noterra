@@ -260,7 +260,7 @@ class EmailController {
       return body.isNotEmpty ? body : fullMessage.snippet ?? 'No content available';
     } catch (e) {
       debugPrint('Error fetching email body: $e');
-      throw Exception('Failed to load email body');
+      throw Exception('Failed to load email body: $e');
     } finally {
       // Always close the client
       authClient.close();
