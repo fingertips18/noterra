@@ -43,6 +43,7 @@ import 'package:flutter/material.dart'
         TextAlign,
         TextOverflow,
         TextStyle,
+        Theme,
         ValueListenableBuilder,
         Widget,
         WidgetStateProperty,
@@ -180,11 +181,11 @@ class _EmailsScreenState extends State<EmailsScreen> {
             right: 0,
             height: 120,
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.white],
+                  colors: [Colors.transparent, Theme.of(context).scaffoldBackgroundColor],
                   stops: [0.0, 1.0],
                 ),
               ),
@@ -198,9 +199,11 @@ class _EmailsScreenState extends State<EmailsScreen> {
             right: 0,
             child: Center(
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Naviate to report generation screen with selected emails
-                },
+                onPressed: _selectedEmails.isEmpty
+                    ? null
+                    : () {
+                        // TODO: Generate report for selected emails and navigate to output screen
+                      },
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
                   foregroundColor: WidgetStateProperty.all(Colors.white),
