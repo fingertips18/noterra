@@ -7,6 +7,7 @@ import 'package:flutter/material.dart'
         ButtonStyle,
         Card,
         Center,
+        Checkbox,
         CircularProgressIndicator,
         Clip,
         Colors,
@@ -59,6 +60,7 @@ class EmailsScreen extends StatefulWidget {
 
 class _EmailsScreenState extends State<EmailsScreen> {
   late final EmailController _emailController;
+  final List<Email> _selectedEmails = [];
 
   @override
   void initState() {
@@ -160,11 +162,25 @@ class _EmailsScreenState extends State<EmailsScreen> {
   }
 
   Widget _emailCard(Email email) {
+    final isSelected = _selectedEmails.contains(email);
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       child: ListTile(
+        leading: Checkbox(
+          value: isSelected,
+          onChanged: (bool? value) {
+            setState(() {
+              if (value == true) {
+                _selectedEmails.add(email);
+              } else {
+                _selectedEmails.remove(email);
+              }
+            });
+          },
+        ),
         title: Text(
           email.subject,
           maxLines: 1,
