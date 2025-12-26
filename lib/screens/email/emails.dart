@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart'
     show
+        Alignment,
         AlwaysScrollableScrollPhysics,
         AppBar,
         BorderRadius,
+        BoxDecoration,
         BuildContext,
         ButtonStyle,
         Card,
@@ -12,6 +14,7 @@ import 'package:flutter/material.dart'
         Clip,
         Colors,
         Column,
+        Container,
         CrossAxisAlignment,
         EdgeInsets,
         ElevatedButton,
@@ -19,6 +22,7 @@ import 'package:flutter/material.dart'
         Icon,
         Icons,
         IgnorePointer,
+        LinearGradient,
         ListTile,
         ListView,
         MainAxisSize,
@@ -26,18 +30,23 @@ import 'package:flutter/material.dart'
         Navigator,
         Opacity,
         Padding,
+        Positioned,
         RefreshIndicator,
         RoundedRectangleBorder,
         Scaffold,
         SizedBox,
+        Stack,
+        StackFit,
         State,
         StatefulWidget,
         Text,
         TextAlign,
         TextOverflow,
         TextStyle,
+        Theme,
         ValueListenableBuilder,
         Widget,
+        WidgetState,
         WidgetStateProperty,
         WidgetsBinding;
 import '/screens/email/view_email.dart' show ViewEmailScreen;
@@ -121,45 +130,101 @@ class _EmailsScreenState extends State<EmailsScreen> {
         foregroundColor: Colors.white,
         title: const Text('Emails', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _clearSelections();
-          _hasAutoSelected = false;
-          await _emailController.refresh();
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: ValueListenableBuilder<EmailState>(
-            valueListenable: _emailController.stateNotifier,
-            builder: (context, state, _) {
-              // Auto-select today's emails when DataState is reached
-              if (state is DataState && !_hasAutoSelected) {
-                _hasAutoSelected = true;
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  final currentState = _emailController.stateNotifier.value;
-                  if (currentState is DataState) {
-                    _autoSelectTodaysEmails(currentState.emails);
-                  }
-                });
-              }
-
-              return switch (state) {
-                LoadingState() => const Center(child: CircularProgressIndicator()),
-
-                RefreshState(:final emails, :final hasMore) => Opacity(
-                  opacity: 0.5,
-                  child: IgnorePointer(ignoring: true, child: _listEmails(emails, hasMore, isLoadingMore: false)),
-                ),
-
-                MoreState(:final emails) => _listEmails(emails, true, isLoadingMore: true),
-
-                DataState(:final emails, :final hasMore) => _listEmails(emails, hasMore, isLoadingMore: false),
-
-                ErrorState(:final message, :final emails) => emails.isEmpty ? _errorView(message) : _listEmails(emails, false, isLoadingMore: false),
-              };
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          RefreshIndicator(
+            onRefresh: () async {
+              _clearSelections();
+              _hasAutoSelected = false;
+              await _emailController.refresh();
             },
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: ValueListenableBuilder<EmailState>(
+                valueListenable: _emailController.stateNotifier,
+                builder: (context, state, _) {
+                  // Auto-select today's emails when DataState is reached
+                  if (state is DataState && !_hasAutoSelected) {
+                    _hasAutoSelected = true;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      final currentState = _emailController.stateNotifier.value;
+                      if (currentState is DataState) {
+                        _autoSelectTodaysEmails(currentState.emails);
+                      }
+                    });
+                  }
+
+                  return switch (state) {
+                    LoadingState() => const Center(child: CircularProgressIndicator()),
+
+                    RefreshState(:final emails, :final hasMore) => Opacity(
+                      opacity: 0.5,
+                      child: IgnorePointer(ignoring: true, child: _listEmails(emails, hasMore, isLoadingMore: false)),
+                    ),
+
+                    MoreState(:final emails) => _listEmails(emails, true, isLoadingMore: true),
+
+                    DataState(:final emails, :final hasMore) => _listEmails(emails, hasMore, isLoadingMore: false),
+
+                    ErrorState(:final message, :final emails) =>
+                      emails.isEmpty ? _errorView(message) : _listEmails(emails, false, isLoadingMore: false),
+                  };
+                },
+              ),
+            ),
           ),
-        ),
+
+          // Gradient overlay
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 120,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Theme.of(context).scaffoldBackgroundColor],
+                  stops: [0.0, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          // Floating Generate Report button
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: ElevatedButton(
+                onPressed: _selectedEmails.isEmpty
+                    ? null
+                    : () {
+                        // TODO: Generate report for selected emails and navigate to output screen
+                      },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.disabled)) {
+                      return Colors.blueAccent.shade100;
+                    }
+                    return Colors.blueAccent;
+                  }),
+                  foregroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.disabled)) {
+                      return Colors.white70;
+                    }
+                    return Colors.white;
+                  }),
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
+                ),
+                child: const Text('Generate Report'),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
