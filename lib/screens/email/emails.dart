@@ -61,6 +61,7 @@ class EmailsScreen extends StatefulWidget {
 class _EmailsScreenState extends State<EmailsScreen> {
   late final EmailController _emailController;
   final Set<Email> _selectedEmails = {};
+  bool _hasAutoSelected = false; // Track if auto-selection has occurred
 
   @override
   void initState() {
@@ -97,6 +98,21 @@ class _EmailsScreenState extends State<EmailsScreen> {
     }
   }
 
+  // Auto-select today's emails
+  void _autoSelectTodaysEmails(List<Email> emails) {
+    final now = DateTime.now();
+    final todaysEmails = emails.where((email) {
+      final emailDate = email.date;
+      return emailDate.year == now.year && emailDate.month == now.month && emailDate.day == now.day;
+    }).toList();
+
+    if (todaysEmails.isNotEmpty) {
+      setState(() {
+        _selectedEmails.addAll(todaysEmails);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,6 +124,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           _clearSelections();
+          _hasAutoSelected = false;
           await _emailController.refresh();
         },
         child: Padding(
@@ -115,6 +132,17 @@ class _EmailsScreenState extends State<EmailsScreen> {
           child: ValueListenableBuilder<EmailState>(
             valueListenable: _emailController.stateNotifier,
             builder: (context, state, _) {
+              // Auto-select today's emails when DataState is reached
+              if (state is DataState && !_hasAutoSelected) {
+                _hasAutoSelected = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final currentState = _emailController.stateNotifier.value;
+                  if (currentState is DataState) {
+                    _autoSelectTodaysEmails(currentState.emails);
+                  }
+                });
+              }
+
               return switch (state) {
                 LoadingState() => const Center(child: CircularProgressIndicator()),
 
