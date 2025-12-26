@@ -46,9 +46,9 @@ import 'package:flutter/material.dart'
         Theme,
         ValueListenableBuilder,
         Widget,
+        WidgetState,
         WidgetStateProperty,
         WidgetsBinding;
-import 'package:flutter/widgets.dart';
 import '/screens/email/view_email.dart' show ViewEmailScreen;
 import '/utils/format.dart' show formatRelativeDate;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
@@ -208,7 +208,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.resolveWith((states) {
                     if (states.contains(WidgetState.disabled)) {
-                      return Colors.blueAccent[100];
+                      return Colors.blueAccent.shade100;
                     }
                     return Colors.blueAccent;
                   }),
