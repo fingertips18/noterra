@@ -48,6 +48,7 @@ import 'package:flutter/material.dart'
         Widget,
         WidgetStateProperty,
         WidgetsBinding;
+import 'package:flutter/widgets.dart';
 import '/screens/email/view_email.dart' show ViewEmailScreen;
 import '/utils/format.dart' show formatRelativeDate;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
@@ -205,8 +206,18 @@ class _EmailsScreenState extends State<EmailsScreen> {
                         // TODO: Generate report for selected emails and navigate to output screen
                       },
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  backgroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.disabled)) {
+                      return Colors.blueAccent[100];
+                    }
+                    return Colors.blueAccent;
+                  }),
+                  foregroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.disabled)) {
+                      return Colors.white70;
+                    }
+                    return Colors.white;
+                  }),
                   padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
                 ),
                 child: const Text('Generate Report'),
