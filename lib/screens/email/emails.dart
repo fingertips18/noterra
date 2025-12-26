@@ -111,8 +111,6 @@ class _EmailsScreenState extends State<EmailsScreen> {
         _selectedEmails.addAll(todaysEmails);
       });
     }
-
-    _hasAutoSelected = true;
   }
 
   @override
@@ -136,8 +134,12 @@ class _EmailsScreenState extends State<EmailsScreen> {
             builder: (context, state, _) {
               // Auto-select today's emails when DataState is reached
               if (state is DataState && !_hasAutoSelected) {
+                _hasAutoSelected = true;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _autoSelectTodaysEmails(state.emails);
+                  final currentState = _emailController.stateNotifier.value;
+                  if (currentState is DataState) {
+                    _autoSelectTodaysEmails(currentState.emails);
+                  }
                 });
               }
 
