@@ -60,7 +60,7 @@ class EmailsScreen extends StatefulWidget {
 
 class _EmailsScreenState extends State<EmailsScreen> {
   late final EmailController _emailController;
-  final List<Email> _selectedEmails = [];
+  final Set<Email> _selectedEmails = {};
 
   @override
   void initState() {
@@ -89,6 +89,14 @@ class _EmailsScreenState extends State<EmailsScreen> {
     super.dispose();
   }
 
+  void _clearSelections() {
+    if (_selectedEmails.isNotEmpty) {
+      setState(() {
+        _selectedEmails.clear();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,7 +106,10 @@ class _EmailsScreenState extends State<EmailsScreen> {
         title: const Text('Emails', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: RefreshIndicator(
-        onRefresh: _emailController.refresh,
+        onRefresh: () async {
+          _clearSelections();
+          await _emailController.refresh();
+        },
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: ValueListenableBuilder<EmailState>(
