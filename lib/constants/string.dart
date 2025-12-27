@@ -1,4 +1,4 @@
 class StringConstants {
   static const templateBox = "template";
-  static const reports = "report";
+  static const reportBox = "report";
 }

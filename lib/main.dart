@@ -13,7 +13,7 @@ Future<void> main() async {
 
   // Open the Hive box to store items
   await Hive.openBox(StringConstants.templateBox);
-  await Hive.openBox(StringConstants.reports);
+  await Hive.openBox(StringConstants.reportBox);
 
   Gemini.init(apiKey: Env.geminiAPIKey);
 
