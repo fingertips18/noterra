@@ -8,11 +8,9 @@ class OAuthController {
   final BuildContext context;
   final VoidCallback? action;
 
-  late final GoogleSignIn _googleSignIn;
+  OAuthController({required this.context, this.action});
 
-  OAuthController({required this.context, this.action}) {
-    _googleSignIn = GoogleSignIn.instance;
-  }
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   final ValueNotifier<bool> isSignedIn = ValueNotifier(false);
   final ValueNotifier<bool> isLoading = ValueNotifier(false);

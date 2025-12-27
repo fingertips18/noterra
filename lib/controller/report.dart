@@ -22,13 +22,23 @@ class ReportController {
 
   Future<void> generateReport({required List<Email> emails, required List<Template> templates}) async {
     try {
+      if (emails.isEmpty || templates.isEmpty) {
+        stateNotifier.value = const ErrorState("Cannot generate report: emails and templates must not be empty");
+        return;
+      }
+
       stateNotifier.value = const GeneratingState();
 
       final parts = _buildPrompt(emails, templates);
 
-      final response = await _gemini.prompt(parts: parts).timeout(const Duration(seconds: 30));
+      final response = await _gemini.prompt(parts: parts).timeout(Duration(seconds: emails.length * 10));
 
-      final content = response?.output ?? "";
+      if (response == null) {
+        stateNotifier.value = const ErrorState("No response received from AI service");
+        return;
+      }
+
+      final content = response.output ?? "";
 
       if (content.isEmpty) {
         stateNotifier.value = const ErrorState("Generated report is empty");
@@ -76,7 +86,7 @@ class ReportController {
     }
 
     parts.add(Part.text("Please generate a comprehensive report following the template structure above."));
-    parts.add(Part.text("Standardize the format as well by adding bold, italic, etc. for easy copy and paste."));
+    parts.add(Part.text("Format the report using Markdown syntax (e.g., **bold**, *italic*, # headings) for easy copy and paste."));
 
     return parts;
   }
@@ -99,9 +109,17 @@ class ReportController {
     try {
       stateNotifier.value = const LoadingState();
 
-      final reports = reportBox.toMap().entries.map((e) {
-        return Report.fromMap(e.value as Map<String, dynamic>).copyWith(key: e.key as int);
-      }).toList();
+      final reports = reportBox
+          .toMap()
+          .entries
+          .where((e) {
+            return e.value is Map && e.key is int;
+          })
+          .map((e) {
+            final value = Map<String, dynamic>.from(e.value as Map);
+            return Report.fromMap(value).copyWith(key: e.key as int);
+          })
+          .toList();
 
       // Sort by generatedAt descending (newest first)
       reports.sort((a, b) => b.generatedAt.compareTo(a.generatedAt));
