@@ -21,6 +21,8 @@ class ReportController {
   final reportBox = Hive.box(StringConstants.reportBox);
 
   Future<void> generateReport({required List<Email> emails, required List<Template> templates}) async {
+    final timeoutSeconds = emails.length * 10;
+
     try {
       if (emails.isEmpty || templates.isEmpty) {
         stateNotifier.value = const ErrorState("Cannot generate report: emails and templates must not be empty");
@@ -31,7 +33,7 @@ class ReportController {
 
       final parts = _buildPrompt(emails, templates);
 
-      final response = await _gemini.prompt(parts: parts).timeout(Duration(seconds: emails.length * 10));
+      final response = await _gemini.prompt(parts: parts).timeout(Duration(seconds: timeoutSeconds));
 
       if (response == null) {
         stateNotifier.value = const ErrorState("No response received from AI service");
@@ -56,7 +58,7 @@ class ReportController {
       final savedReport = await saveReport(report);
       stateNotifier.value = DataState(savedReport);
     } on TimeoutException {
-      stateNotifier.value = const ErrorState("Report generation timed out after 30 seconds");
+      stateNotifier.value = ErrorState("Report generation timed out after $timeoutSeconds seconds");
     } catch (e) {
       stateNotifier.value = ErrorState("Failed to generate report: ${e.toString()}");
     }
