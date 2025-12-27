@@ -21,7 +21,7 @@ class ReportController {
   final reportBox = Hive.box(StringConstants.reportBox);
 
   Future<void> generateReport({required List<Email> emails, required List<Template> templates}) async {
-    final timeoutSeconds = emails.length * 10;
+    final timeoutSeconds = (emails.length * 10).clamp(60, 300);
 
     try {
       if (emails.isEmpty || templates.isEmpty) {
