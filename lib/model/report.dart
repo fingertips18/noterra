@@ -33,24 +33,24 @@ class Report extends Equatable {
 
   factory Report.fromMap(Map<String, dynamic> map) {
     return Report(
-      key: map["key"],
-      title: map["title"],
-      content: map["content"],
-      templateKeys: map["template_keys"],
-      emailIDs: (map["email_ids"] as List).map((e) => e.toString()).toList(),
+      key: map["key"] as String,
+      title: map["title"] as String,
+      content: map["content"] as String,
+      templateKeys: (map["template_keys"] as List<dynamic>).map((e) => e as int?).toList(),
+      emailIDs: (map["email_ids"] as List<dynamic>).map((e) => e.toString()).toList(),
       generatedAt: DateTime.parse(map["generated_at"] as String),
-      metadata: map["metadata"],
+      metadata: map["metadata"] as Map<String, dynamic>?,
     );
   }
 
   Report copyWith({
     String? key,
-    title,
-    content,
+    String? title,
+    String? content,
     List<int?>? templateKeys,
     List<String>? emailIDs,
     DateTime? generatedAt,
-    Map<String, dynamic>? metadata,
+    Object? metadata = const _Sentinel(),
   }) {
     return Report(
       key: key ?? this.key,
@@ -59,10 +59,14 @@ class Report extends Equatable {
       templateKeys: templateKeys ?? this.templateKeys,
       emailIDs: emailIDs ?? this.emailIDs,
       generatedAt: generatedAt ?? this.generatedAt,
-      metadata: metadata ?? this.metadata,
+      metadata: identical(metadata, const _Sentinel()) ? this.metadata : metadata as Map<String, dynamic>?,
     );
   }
 
   @override
   List<Object?> get props => [key, title, content, templateKeys, emailIDs, generatedAt, metadata];
+}
+
+class _Sentinel {
+  const _Sentinel();
 }
