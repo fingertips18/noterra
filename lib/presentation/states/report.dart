@@ -6,6 +6,13 @@ sealed class ReportState extends Equatable {
   const ReportState();
 }
 
+class IdleState extends ReportState {
+  const IdleState();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class LoadingState extends ReportState {
   const LoadingState();
 

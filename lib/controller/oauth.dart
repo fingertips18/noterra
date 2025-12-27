@@ -66,4 +66,9 @@ class OAuthController {
       isLoading.value = false;
     }
   }
+
+  void dispose() {
+    isSignedIn.dispose();
+    isLoading.dispose();
+  }
 }
