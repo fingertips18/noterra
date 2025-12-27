@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart' show BuildContext, Colors, MaterialApp, StatelessWidget, ThemeData, Widget, WidgetsFlutterBinding, runApp;
+import 'env/env.dart' show Env;
 import 'app.dart' show App;
 import 'constants/string.dart' show StringConstants;
 import 'package:hive_flutter/hive_flutter.dart' show Hive, HiveX;
+import 'package:flutter_gemini/flutter_gemini.dart' show Gemini;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +13,9 @@ Future<void> main() async {
 
   // Open the Hive box to store items
   await Hive.openBox(StringConstants.templateBox);
+  await Hive.openBox(StringConstants.reportBox);
+
+  Gemini.init(apiKey: Env.geminiAPIKey);
 
   runApp(const MyApp());
 }
