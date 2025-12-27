@@ -8,10 +8,16 @@ import '/model/report.dart' show Report;
 import '/utils/format.dart' show formatRelativeDate;
 import '/model/template.dart' show Template;
 import '/model/email.dart' show Email;
-import '/presentation/states/report.dart' show DataState, ErrorState, GeneratingState, ListState, LoadingState, ReportState;
+import '/presentation/states/report.dart' show IdleState, DataState, ErrorState, GeneratingState, ListState, LoadingState, ReportState;
 
+/// Controller for AI-powered report generation and persistence.
+///
+/// **Preconditions:**
+/// - Hive must be initialized via `Hive.initFlutter()`
+/// - The report box must be opened via `Hive.openBox(StringConstants.reportBox)`
+/// - Gemini must be initialized via `Gemini.init()`
 class ReportController {
-  final ValueNotifier<ReportState> stateNotifier = ValueNotifier(const LoadingState());
+  final ValueNotifier<ReportState> stateNotifier = ValueNotifier(const IdleState());
   late final Gemini _gemini;
 
   ReportController() {
@@ -94,16 +100,12 @@ class ReportController {
   }
 
   Future<Report> saveReport(Report report) async {
-    try {
-      if (report.key == null) {
-        final key = await reportBox.add(report.toMap());
-        return report.copyWith(key: key);
-      } else {
-        await reportBox.put(report.key, report.toMap());
-        return report;
-      }
-    } catch (e) {
-      throw Exception("Failed to save report: ${e.toString()}");
+    if (report.key == null) {
+      final key = await reportBox.add(report.toMap());
+      return report.copyWith(key: key);
+    } else {
+      await reportBox.put(report.key, report.toMap());
+      return report;
     }
   }
 
@@ -135,7 +137,14 @@ class ReportController {
   Future<void> deleteReport(int key) async {
     try {
       await reportBox.delete(key);
-      await listReports(); // Refresh the list
+      // Optimistically update state without LoadingState flicker
+      final currentState = stateNotifier.value;
+      if (currentState is ListState) {
+        final updatedReports = currentState.reports.where((r) => r.key != key).toList();
+        stateNotifier.value = ListState(updatedReports);
+      } else {
+        await listReports(); // Fallback to full refresh
+      }
     } catch (e) {
       stateNotifier.value = ErrorState("Failed to delete report: ${e.toString()}");
     }
