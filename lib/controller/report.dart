@@ -58,7 +58,8 @@ class ReportController {
     parts.add(Part.text("Generate a report based on the following templates:"));
 
     for (var template in templates) {
-      parts.add(Part.text(template.body));
+      parts.add(Part.text("Title: ${template.title}"));
+      parts.add(Part.text("Body: ${template.body}"));
       parts.add(Part.text("--------------------------------------------------"));
     }
 
