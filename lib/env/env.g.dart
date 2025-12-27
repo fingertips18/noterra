@@ -12,4 +12,6 @@ part of 'env.dart';
 final class _Env {
   static const String iosClientID =
       '836097326916-le98789jkcn39p3veb5u4b8d7knco3os.apps.googleusercontent.com';
+
+  static const String geminiAPIKey = 'AIzaSyDznjZNXZ8ZNVgggieDlZ-clLiisHjb1Lo';
 }
