@@ -112,6 +112,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
       _emailController.dispose();
     }
     _templateController.dispose();
+    _reportController.dispose();
     super.dispose();
   }
 
