@@ -53,6 +53,7 @@ import 'package:flutter/material.dart'
         WidgetState,
         WidgetStateProperty,
         WidgetsBinding;
+import '/screens/report/report.dart' show ReportScreen;
 import '/controller/report.dart' show ReportController;
 import '/controller/template.dart' show TemplateController;
 import '/model/template.dart' show Template;
@@ -254,7 +255,14 @@ class _EmailsScreenState extends State<EmailsScreen> {
 
                             // Navigate to report generation screen
                             if (mounted) {
-                              // TODO: add generate report screen with selectedEmails, template and controller as props
+                              if (context.mounted) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        ReportScreen(selectedEmails: _selectedEmails.toList(), templates: templates, controller: _reportController),
+                                  ),
+                                );
+                              }
                             }
                           },
                     style: ButtonStyle(
