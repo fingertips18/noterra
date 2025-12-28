@@ -254,15 +254,13 @@ class _EmailsScreenState extends State<EmailsScreen> {
                             if (template == null) return;
 
                             // Navigate to report generation screen
-                            if (mounted) {
-                              if (context.mounted) {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        ReportScreen(selectedEmails: _selectedEmails.toList(), templates: templates, controller: _reportController),
-                                  ),
-                                );
-                              }
+                            if (context.mounted) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      ReportScreen(selectedEmails: _selectedEmails.toList(), templates: templates, controller: _reportController),
+                                ),
+                              );
                             }
                           },
                     style: ButtonStyle(

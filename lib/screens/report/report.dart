@@ -76,19 +76,18 @@ class _ReportScreenState extends State<ReportScreen> {
 
     if (widget.existingReport == null) {
       // Generation mode - trigger report generation
-      WidgetsBinding.instance.addPersistentFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (widget.selectedEmails == null || widget.templates == null) {
+          widget.controller.stateNotifier.value = const ErrorState("Invalid state: missing emails or templates");
+          return;
+        }
+
         widget.controller.generateReport(emails: widget.selectedEmails!, templates: widget.templates!);
       });
     } else {
       // Viewing mode - set existing report as state
-      widget.controller.stateNotifier.value = DataState(widget.existingReport!);
+      widget.controller.setExistingReport(widget.existingReport!);
     }
-  }
-
-  @override
-  void dispose() {
-    widget.controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -293,7 +292,12 @@ class _ReportScreenState extends State<ReportScreen> {
       title: "Delete Report",
       content: "Are you sure you want to delete this report?",
       action: () async {
-        if (report.key == null) return;
+        if (report.key == null) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Cannot delete report: invalid key")));
+          }
+          return;
+        }
 
         await widget.controller.deleteReport(report.key!);
       },
