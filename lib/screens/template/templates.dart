@@ -52,7 +52,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   @override
   void initState() {
     super.initState();
-    _templateController = TemplateController(context: context);
+    _templateController = TemplateController();
     _templateController.listTemplates();
   }
 
@@ -71,7 +71,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 title: "Delete all templates?",
                 content: "This will permanently remove all saved templates. You won't be able to recover them.",
                 action: () async {
-                  await _templateController.clearTemplates();
+                  await _templateController.clearTemplates(context);
                 },
               );
             },
@@ -145,7 +145,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                 title: "Are you sure you want to delete this template?",
                                 content: "This action cannot be undone.",
                                 action: () async {
-                                  await _templateController.deleteTemplate(templateKey: template.key);
+                                  await _templateController.deleteTemplate(context, templateKey: template.key);
                                 },
                               );
                             },
