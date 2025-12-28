@@ -43,7 +43,7 @@ class _EditTemplateScreenState extends State<EditTemplateScreen> {
 
     Template template = widget.template.copyWith(title: _titleController.text, body: _bodyController.text, updatedAt: DateTime.now());
 
-    await widget.controller.editTemplate(template: template);
+    await widget.controller.editTemplate(context, template: template);
 
     _titleController.clear();
     _bodyController.clear();

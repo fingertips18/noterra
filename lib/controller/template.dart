@@ -6,10 +6,9 @@ import '/model/template.dart' show Template;
 import '/widgets/toast.dart' show toast;
 
 class TemplateController {
-  final BuildContext context;
   final VoidCallback? action;
 
-  TemplateController({required this.context, this.action});
+  TemplateController({this.action});
 
   final templateBox = Hive.box(StringConstants.templateBox);
 
@@ -29,43 +28,47 @@ class TemplateController {
     templatesNotifier.value = templates;
   }
 
-  Future<void> createTemplate({required Template template}) async {
+  Future<void> createTemplate(BuildContext context, {required Template template}) async {
     try {
       await templateBox.add(template.toMap());
-      _afterAction("saved");
+      if (!context.mounted) return;
+      _afterAction(context, keyword: "saved");
     } catch (e) {
       toast(message: "Failed to create template", status: Status.error);
     }
   }
 
-  Future<void> editTemplate({required Template template}) async {
+  Future<void> editTemplate(BuildContext context, {required Template template}) async {
     try {
       await templateBox.put(template.key, template.toMap());
-      _afterAction("edited");
+      if (!context.mounted) return;
+      _afterAction(context, keyword: "edited");
     } catch (e) {
       toast(message: "Failed to edit template", status: Status.error);
     }
   }
 
-  Future<void> deleteTemplate({required dynamic templateKey}) async {
+  Future<void> deleteTemplate(BuildContext context, {required dynamic templateKey}) async {
     try {
       await templateBox.delete(templateKey);
-      _afterAction("deleted");
+      if (!context.mounted) return;
+      _afterAction(context, keyword: "deleted");
     } catch (e) {
       toast(message: "Failed to delete template", status: Status.error);
     }
   }
 
-  Future<void> clearTemplates() async {
+  Future<void> clearTemplates(BuildContext context) async {
     try {
       await templateBox.clear();
-      _afterAction("cleared");
+      if (!context.mounted) return;
+      _afterAction(context, keyword: "cleared");
     } catch (e) {
       toast(message: "Failed to clear templates", status: Status.error);
     }
   }
 
-  void _afterAction(String keyword) {
+  void _afterAction(BuildContext context, {required String keyword}) {
     toast(message: 'Template $keyword successfully', status: Status.success);
     listTemplates();
     action?.call(); // Refresh UI

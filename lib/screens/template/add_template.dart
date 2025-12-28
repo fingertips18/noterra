@@ -34,7 +34,7 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
 
     Template template = Template(title: _titleController.text, body: _bodyController.text, createdAt: DateTime.now(), updatedAt: DateTime.now());
 
-    await widget.controller.createTemplate(template: template);
+    await widget.controller.createTemplate(context, template: template);
 
     _titleController.clear();
     _bodyController.clear();

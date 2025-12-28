@@ -2,6 +2,7 @@ import 'package:flutter/material.dart'
     show
         Alignment,
         AlwaysScrollableScrollPhysics,
+        AlwaysStoppedAnimation,
         AppBar,
         BorderRadius,
         BoxDecoration,
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart'
         Checkbox,
         CircularProgressIndicator,
         Clip,
+        Color,
         Colors,
         Column,
         Container,
@@ -51,12 +53,14 @@ import 'package:flutter/material.dart'
         WidgetState,
         WidgetStateProperty,
         WidgetsBinding;
+import '/controller/report.dart' show ReportController;
 import '/controller/template.dart' show TemplateController;
 import '/model/template.dart' show Template;
 import '/widgets/template_selector.dart' show showTemplateSelector;
 import '/screens/email/view_email.dart' show ViewEmailScreen;
 import '/utils/format.dart' show formatRelativeDate;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
+import '/presentation/states/report.dart' show ReportState, GeneratingState;
 import '/constants/status.dart' show Status;
 import '/widgets/toast.dart' show toast;
 import '/model/email.dart' show Email;
@@ -75,6 +79,7 @@ class EmailsScreen extends StatefulWidget {
 class _EmailsScreenState extends State<EmailsScreen> {
   late final EmailController _emailController;
   late final TemplateController _templateController;
+  late final ReportController _reportController;
   final Set<Email> _selectedEmails = {};
   bool _hasAutoSelected = false; // Track if auto-selection has occurred
 
@@ -95,8 +100,9 @@ class _EmailsScreenState extends State<EmailsScreen> {
     _emailController = EmailController(currentUser: currentUser);
     _emailController.load();
 
-    // Initialize template controller
-    _templateController = TemplateController(context: context);
+    // Initialize controllers
+    _templateController = TemplateController();
+    _reportController = ReportController();
   }
 
   @override
@@ -105,6 +111,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
     if (currentUser != null) {
       _emailController.dispose();
     }
+    _templateController.templatesNotifier.dispose();
     super.dispose();
   }
 
@@ -208,58 +215,71 @@ class _EmailsScreenState extends State<EmailsScreen> {
             left: 0,
             right: 0,
             child: Center(
-              child: ElevatedButton(
-                onPressed: _selectedEmails.isEmpty
-                    ? null
-                    : () async {
-                        // Load templates
-                        _templateController.listTemplates();
+              child: ValueListenableBuilder<ReportState>(
+                valueListenable: _reportController.stateNotifier,
+                builder: (context, state, _) {
+                  final isGenerating = state is GeneratingState;
 
-                        // Get templates from notifier
-                        final templateMaps = _templateController.templatesNotifier.value;
+                  return ElevatedButton(
+                    onPressed: _selectedEmails.isEmpty || isGenerating
+                        ? null
+                        : () async {
+                            // Load templates
+                            _templateController.listTemplates();
 
-                        if (templateMaps.isEmpty) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("No templates available. Please create a template first."), backgroundColor: Colors.amber),
-                            );
-                          }
-                          return;
+                            // Get templates from notifier
+                            final templateMaps = _templateController.templatesNotifier.value;
+
+                            if (templateMaps.isEmpty) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("No templates available. Please create a template first."),
+                                    backgroundColor: Colors.amber,
+                                  ),
+                                );
+                              }
+                              return;
+                            }
+
+                            // Convert maps to template objects
+                            final templates = templateMaps.map((map) => Template.fromMap(map)).toList();
+
+                            // Show template selector
+                            final template = await showTemplateSelector(context, templates: templates);
+
+                            // Handle cancellation
+                            if (template == null) return;
+
+                            // Navigate to report generation screen
+                            if (mounted) {
+                              // TODO: add generate report screen with selectedEmails, template and controller as props
+                            }
+                          },
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return Colors.blueAccent.shade100;
                         }
-
-                        // Convert maps to template objects
-                        final templates = templateMaps.map((map) => Template.fromMap(map)).toList();
-
-                        // Show template selector
-                        final template = await showTemplateSelector(context, templates: templates);
-
-                        // Handle cancellation
-                        if (template == null) return;
-
-                        // Create report controller
-                        // final reportController = ReportController();
-
-                        // Navigate to report generation screen
-                        if (mounted) {
-                          // TODO: add generate report screen with selectedEmails, template and controller as props
+                        return Colors.blueAccent;
+                      }),
+                      foregroundColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return Colors.white70;
                         }
-                      },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.disabled)) {
-                      return Colors.blueAccent.shade100;
-                    }
-                    return Colors.blueAccent;
-                  }),
-                  foregroundColor: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.disabled)) {
-                      return Colors.white70;
-                    }
-                    return Colors.white;
-                  }),
-                  padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
-                ),
-                child: Text('Generate Report (${_selectedEmails.length})'),
+                        return Colors.white;
+                      }),
+                      padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
+                    ),
+                    child: isGenerating
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                          )
+                        : Text('Generate Report (${_selectedEmails.length})'),
+                  );
+                },
               ),
             ),
           ),
