@@ -43,7 +43,7 @@ import 'package:flutter/material.dart'
         ValueListenableBuilder,
         Widget,
         WidgetsBinding;
-import 'package:flutter/services.dart' show Clipboard, ClipboardData, FontWeight, TextAlign;
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import '/controller/report.dart' show ReportController;
 import '/model/email.dart' show Email;
 import '/model/report.dart' show Report;
