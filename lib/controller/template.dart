@@ -74,4 +74,8 @@ class TemplateController {
     action?.call(); // Refresh UI
     Navigator.of(context).pop(); // Close modals
   }
+
+  void dispose() {
+    templatesNotifier.dispose();
+  }
 }

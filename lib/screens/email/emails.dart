@@ -111,7 +111,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
     if (currentUser != null) {
       _emailController.dispose();
     }
-    _templateController.templatesNotifier.dispose();
+    _templateController.dispose();
     super.dispose();
   }
 
