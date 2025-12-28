@@ -34,7 +34,9 @@ import 'package:flutter/material.dart'
         RefreshIndicator,
         RoundedRectangleBorder,
         Scaffold,
+        ScaffoldMessenger,
         SizedBox,
+        SnackBar,
         Stack,
         StackFit,
         State,
@@ -49,6 +51,9 @@ import 'package:flutter/material.dart'
         WidgetState,
         WidgetStateProperty,
         WidgetsBinding;
+import '/controller/template.dart' show TemplateController;
+import '/model/template.dart' show Template;
+import '/widgets/template_selector.dart' show showTemplateSelector;
 import '/screens/email/view_email.dart' show ViewEmailScreen;
 import '/utils/format.dart' show formatRelativeDate;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
@@ -69,6 +74,7 @@ class EmailsScreen extends StatefulWidget {
 
 class _EmailsScreenState extends State<EmailsScreen> {
   late final EmailController _emailController;
+  late final TemplateController _templateController;
   final Set<Email> _selectedEmails = {};
   bool _hasAutoSelected = false; // Track if auto-selection has occurred
 
@@ -88,6 +94,9 @@ class _EmailsScreenState extends State<EmailsScreen> {
     }
     _emailController = EmailController(currentUser: currentUser);
     _emailController.load();
+
+    // Initialize template controller
+    _templateController = TemplateController(context: context);
   }
 
   @override
@@ -202,8 +211,38 @@ class _EmailsScreenState extends State<EmailsScreen> {
               child: ElevatedButton(
                 onPressed: _selectedEmails.isEmpty
                     ? null
-                    : () {
-                        // TODO: Generate report for selected emails and navigate to output screen
+                    : () async {
+                        // Load templates
+                        _templateController.listTemplates();
+
+                        // Get templates from notifier
+                        final templateMaps = _templateController.templatesNotifier.value;
+
+                        if (templateMaps.isEmpty) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("No templates available. Please create a template first."), backgroundColor: Colors.amber),
+                            );
+                          }
+                          return;
+                        }
+
+                        // Convert maps to template objects
+                        final templates = templateMaps.map((map) => Template.fromMap(map)).toList();
+
+                        // Show template selector
+                        final template = await showTemplateSelector(context, templates: templates);
+
+                        // Handle cancellation
+                        if (template == null) return;
+
+                        // Create report controller
+                        // final reportController = ReportController();
+
+                        // Navigate to report generation screen
+                        if (mounted) {
+                          // TODO: add generate report screen with selectedEmails, template and controller as props
+                        }
                       },
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.resolveWith((states) {
@@ -220,7 +259,7 @@ class _EmailsScreenState extends State<EmailsScreen> {
                   }),
                   padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
                 ),
-                child: const Text('Generate Report'),
+                child: Text('Generate Report (${_selectedEmails.length})'),
               ),
             ),
           ),
