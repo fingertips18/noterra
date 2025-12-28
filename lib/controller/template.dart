@@ -30,6 +30,13 @@ class TemplateController {
 
   Future<void> createTemplate(BuildContext context, {required Template template}) async {
     try {
+      // Check template limit
+      final currentCount = templateBox.length;
+      if (currentCount >= 5) {
+        toast(message: "Template limit reached. You can only store up to 5 templates.", status: Status.error);
+        return;
+      }
+
       await templateBox.add(template.toMap());
       if (!context.mounted) return;
       _afterAction(context, keyword: "saved");
