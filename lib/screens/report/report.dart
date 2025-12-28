@@ -300,6 +300,11 @@ class _ReportScreenState extends State<ReportScreen> {
         }
 
         await widget.controller.deleteReport(report.key!);
+
+        // Navigate back after successful deletion
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
       },
     );
   }
