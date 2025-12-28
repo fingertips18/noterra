@@ -57,7 +57,6 @@ import '/screens/report/report.dart' show ReportScreen;
 import '/controller/report.dart' show ReportController;
 import '/controller/template.dart' show TemplateController;
 import '/model/template.dart' show Template;
-import '/widgets/template_selector.dart' show showTemplateSelector;
 import '/screens/email/view_email.dart' show ViewEmailScreen;
 import '/utils/format.dart' show formatRelativeDate;
 import '/presentation/states/email.dart' show DataState, EmailState, ErrorState, LoadingState, MoreState, RefreshState;
@@ -246,12 +245,6 @@ class _EmailsScreenState extends State<EmailsScreen> {
 
                             // Convert maps to template objects
                             final templates = templateMaps.map((map) => Template.fromMap(map)).toList();
-
-                            // Show template selector
-                            final template = await showTemplateSelector(context, templates: templates);
-
-                            // Handle cancellation
-                            if (template == null) return;
 
                             // Navigate to report generation screen
                             if (context.mounted) {

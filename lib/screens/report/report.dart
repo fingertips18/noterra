@@ -78,7 +78,7 @@ class _ReportScreenState extends State<ReportScreen> {
       // Generation mode - trigger report generation
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (widget.selectedEmails == null || widget.templates == null) {
-          widget.controller.stateNotifier.value = const ErrorState("Invalid state: missing emails or templates");
+          widget.controller.setError("Invalid state: missing emails or templates");
           return;
         }
 

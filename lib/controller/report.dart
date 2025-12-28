@@ -150,10 +150,12 @@ class ReportController {
     }
   }
 
-  /// Sets an existing report as the current state.
-  /// Used when viewing a previously generated report.
   void setExistingReport(Report report) {
     stateNotifier.value = DataState(report);
+  }
+
+  void setError(String message) {
+    stateNotifier.value = ErrorState(message);
   }
 
   void dispose() {
